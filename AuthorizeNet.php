@@ -7,7 +7,7 @@ Author: Joseph C Dolson
 Author URI: http://www.joedolson.com/my-tickets-authnet/authorizenet
 Version: 1.1.0
 */
-/*  Copyright 2014-2015  Joe Dolson (email : joe@joedolson.com)
+/*  Copyright 2014-2016  Joe Dolson (email : joe@joedolson.com)
 
     This program is open source software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,6 +27,29 @@ global $amt_version;
 $amt_version = '1.1.0';
 
 load_plugin_textdomain( 'my-tickets-authnet', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
+
+
+// The URL of the site with EDD installed
+define( 'EDD_MTA_STORE_URL', 'https://www.joedolson.com' ); 
+// The title of your product in EDD and should match the download title in EDD exactly
+define( 'EDD_MTA_ITEM_NAME', 'My Tickets: Authorize.net' ); 
+
+if( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
+	// load our custom updater if it doesn't already exist 
+	include( dirname( __FILE__ ) . '/updates/EDD_SL_Plugin_Updater.php' );
+}
+
+// retrieve our license key from the DB
+$license_key = trim( get_option( 'mta_license_key' ) ); 
+// setup the updater
+$edd_updater = new EDD_SL_Plugin_Updater( EDD_MTA_STORE_URL, __FILE__, array(
+	'version' 	=> $amt_version,					// current version number
+	'license' 	=> $license_key,			// license key (used get_option above to retrieve from DB)
+	'item_name'     => EDD_MTA_ITEM_NAME,	// name of this plugin
+	'author' 	=> 'Joe Dolson',		// author of this plugin
+	'url'           => home_url()
+) );
+
 /**
  *
  * @package AuthorizeNet
@@ -44,24 +67,6 @@ require_once( 'lib/AuthorizeNetTD.php' );
 
 if ( ! class_exists( "SoapClient" ) ) {
 	require_once( 'lib/AuthorizeNetSOAP.php' );
-}
-
-add_action( 'init', 'mta_check_for_upgrades' );
-/**
- * Check for automatic upgrade availability.
- */
-function mta_check_for_upgrades() {
-	global $amt_version;
-	$hash = get_option( 'mta_license_key' );
-	if ( ! $hash ) {
-		return;
-	}
-	$mt_plugin_current_version = $amt_version;
-	$mt_plugin_remote_path     = "http://www.joedolson.com/wp-content/plugins/files/updates-v2.php?key=$hash";
-	$mt_plugin_slug            = plugin_basename( __FILE__ );
-	if ( class_exists( 'mt_auto_update' ) ) {	
-		new mt_auto_update( $mt_plugin_current_version, $mt_plugin_remote_path, $mt_plugin_slug );
-	}
 }
 
 /*
