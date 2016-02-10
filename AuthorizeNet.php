@@ -333,7 +333,7 @@ function mta_save_license( $response, $post ) {
 	$field = 'mta_license_key';
 	$name =  __( 'My Tickets: Authorize.net', 'my-tickets-authnet' );	
 	if ( $post[$field] != get_option( $field ) ) {
-		$verify = mt_verify_key( $field, $name );
+		$verify = mt_verify_key( $field, EDD_MTA_ITEM_NAME, EDD_MTA_STORE_URL );
 	} else {
 		$verify = '';
 	}
