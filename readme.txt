@@ -3,7 +3,7 @@ Contributors: joedolson
 Donate link: http://www.joedolson.com/my-tickets/add-ons/
 Tags: my-tickets, authorize.net
 Requires at least: 3.9.8
-Tested up to: 4.3.1
+Tested up to: 4.4.2
 Stable tag: trunk
 
 Support for Authorize.net in My Tickets.
@@ -23,6 +23,10 @@ New or updated translations are always appreciated. The translation files are in
 3. Go to My Tickets > Payment Settings and configure the Authorize.net payment gateway.
 
 == Changelog ==
+
+= 1.1.1 =
+
+* Update extension to use EDD endpoints & licensing
 
 = 1.1.0 =
 
