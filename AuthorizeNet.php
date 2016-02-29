@@ -5,7 +5,7 @@ Plugin URI: http://www.joedolson.com/
 Description: Add support for the Authorize.net payment gateway to My Tickets.
 Author: Joseph C Dolson
 Author URI: http://www.joedolson.com/my-tickets-authnet/authorizenet
-Version: 1.1.1
+Version: 1.1.2
 */
 /*  Copyright 2014-2016  Joe Dolson (email : joe@joedolson.com)
 
@@ -24,7 +24,7 @@ Version: 1.1.1
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 global $amt_version;
-$amt_version = '1.1.0';
+$amt_version = '1.1.2';
 
 load_plugin_textdomain( 'my-tickets-authnet', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 
@@ -42,6 +42,7 @@ if( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 // retrieve our license key from the DB
 $license_key = trim( get_option( 'mta_license_key' ) ); 
 // setup the updater
+
 $edd_updater = new EDD_SL_Plugin_Updater( EDD_MTA_STORE_URL, __FILE__, array(
 	'version' 	=> $amt_version,					// current version number
 	'license' 	=> $license_key,			// license key (used get_option above to retrieve from DB)
@@ -320,10 +321,11 @@ function mt_gateway_authorizenet( $form, $gateway, $args ) {
 add_action( 'mt_license_fields', 'mta_license_field' );
 function mta_license_field( $fields ) {
 	$field = 'mta_license_key';
+	$active = ( get_option( 'mta_license_key_valid' ) == 'valid' ) ? ' <span class="license-activated">(active)</span>' : '';	
 	$name =  __( 'My Tickets: Authorize.net', 'my-tickets-authnet' );
 	return $fields . "
 	<p class='license'>
-		<label for='$field'>$name</label><br/>
+		<label for='$field'>$name$active</label><br/>
 		<input type='text' name='$field' id='$field' size='60' value='".esc_attr( trim( get_option( $field ) ) )."' />
 	</p>";
 }
@@ -332,17 +334,14 @@ add_action( 'mt_save_license', 'mta_save_license', 10, 2 );
 function mta_save_license( $response, $post ) {
 	$field = 'mta_license_key';
 	$name =  __( 'My Tickets: Authorize.net', 'my-tickets-authnet' );	
-	if ( $post[$field] != get_option( $field ) ) {
-		$verify = mt_verify_key( $field, EDD_MTA_ITEM_NAME, EDD_MTA_STORE_URL );
-	} else {
-		$verify = '';
-	}
+	$verify = mt_verify_key( $field, EDD_MTA_ITEM_NAME, EDD_MTA_STORE_URL );
 	$verify = "<li>$verify</li>";
+	
 	return $response . $verify;
 }
 
 // these are existence checkers. Exist if licensed.
-if ( get_option( 'mta_license_key_valid' ) == 'true' ) {
+if ( get_option( 'mta_license_key_valid' ) == 'true' || get_option( 'mta_license_key_valid' ) == 'valid' ) {
 	function mta_valid() {
 		return true;
 	}

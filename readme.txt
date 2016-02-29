@@ -24,6 +24,10 @@ New or updated translations are always appreciated. The translation files are in
 
 == Changelog ==
 
+= 1.1.2 =
+
+* Bug fixes with license activation & updates
+
 = 1.1.1 =
 
 * Update extension to use EDD endpoints & licensing
