@@ -1,0 +1,171 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Project-Id-Version: My Tickets: Authorize.net\n"
+"POT-Creation-Date: 2016-03-01 12:53-0600\n"
+"PO-Revision-Date: 2016-03-01 12:53-0600\n"
+"Last-Translator: Joseph Dolson <joe@joedolson.com>\n"
+"Language-Team: Joseph Dolson <joe@joedolson.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: AuthorizeNet.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: AuthorizeNet.php:168
+msgid "That transaction was not handled by Authorize.net."
+msgstr ""
+
+#: AuthorizeNet.php:184
+msgid "Authorize.net"
+msgstr ""
+
+#: AuthorizeNet.php:186
+msgid "API Login ID"
+msgstr ""
+
+#: AuthorizeNet.php:187
+msgid "Transaction Key"
+msgstr ""
+
+#: AuthorizeNet.php:188
+msgid "MD5 Hash Value"
+msgstr ""
+
+#: AuthorizeNet.php:243
+#, php-format
+msgid ""
+"Thank you for your purchase! Your Authorize.net transaction id is: #%1$s. <a "
+"href=\"%2$s\">View your receipt</a>"
+msgstr ""
+
+#: AuthorizeNet.php:245
+#, php-format
+msgid "Sorry, an error occurred: %s"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+#: AuthorizeNet.php:325 AuthorizeNet.php:336
+msgid "My Tickets: Authorize.net"
+msgstr ""
+
+#: AuthorizeNet.php:349
+#, php-format
+msgid ""
+"Please <a href='%s'>enter your My Tickets: Authorize.net license key</a> to "
+"be eligible for support."
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:66
+msgid "Return to site"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:102
+#, php-format
+msgid "Ticket Payment ID: %s"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:130
+msgid "Payment Details"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:132
+msgid "Credit Card Number"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:136
+msgid "Expiration (mm/yy)"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:139
+msgid "Security Code"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:143
+msgid "First Name"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:147
+msgid "Last Name"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:151
+msgid "Email"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:155
+msgid "Phone"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:162
+msgid "Billing Address"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:164
+msgid "Address"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:168
+msgid "City"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:172
+msgid "State/Province"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:176
+msgid "Postal Code"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:180
+msgid "Country"
+msgstr ""
+
+#: lib/AuthorizeNetDPM.php:187
+msgid "Pay with Authorize.net"
+msgstr ""
+
+#: updates/EDD_SL_Plugin_Updater.php:186
+#, php-format
+msgid ""
+"There is a new version of %1$s available. %2$sView version %3$s details%4$s."
+msgstr ""
+
+#: updates/EDD_SL_Plugin_Updater.php:194
+#, php-format
+msgid ""
+"There is a new version of %1$s available. %2$sView version %3$s details%4$s "
+"or %5$supdate now%6$s."
+msgstr ""
+
+#: updates/EDD_SL_Plugin_Updater.php:337
+msgid "You do not have permission to install plugin updates"
+msgstr ""
+
+#: updates/EDD_SL_Plugin_Updater.php:337
+msgid "Error"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://www.joedolson.com/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Add support for the Authorize.net payment gateway to My Tickets."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Joseph C Dolson"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://www.joedolson.com/my-tickets-authnet/authorizenet"
+msgstr ""
