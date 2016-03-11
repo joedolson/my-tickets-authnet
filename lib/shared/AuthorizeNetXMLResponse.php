@@ -12,7 +12,7 @@
  * @package    AuthorizeNet
  * @subpackage AuthorizeNetXML
  */
-if ( ! class_exists( 'AuthorizeNetXMLResponse' ) ) {
+if ( ! class_exists( 'mt_AuthorizeNetXMLResponse' ) ) {
 	class mt_AuthorizeNetXMLResponse {
 
 		public $xml; // Holds a SimpleXML Element with response.

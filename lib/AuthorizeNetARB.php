@@ -14,7 +14,7 @@
  * @package    AuthorizeNet
  * @subpackage AuthorizeNetARB
  */
-if ( ! class_exists( 'AuthorizeNetARB' ) ) {
+if ( ! class_exists( 'mt_AuthorizeNetARB' ) ) {
 
 	class mt_AuthorizeNetARB extends mt_AuthorizeNetRequest {
 
