@@ -24,6 +24,11 @@ New or updated translations are always appreciated. The translation files are in
 
 == Changelog ==
 
+= 1.1.3 =
+
+* Bug fix: Precautionary check for class existence
+* Bug fix: check class names in Authorize.net 
+
 = 1.1.2 =
 
 * Bug fixes with license activation & updates

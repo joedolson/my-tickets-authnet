@@ -5,7 +5,7 @@ Plugin URI: http://www.joedolson.com/
 Description: Add support for the Authorize.net payment gateway to My Tickets.
 Author: Joseph C Dolson
 Author URI: http://www.joedolson.com/my-tickets-authnet/authorizenet
-Version: 1.1.2
+Version: 1.1.3
 */
 /*  Copyright 2014-2016  Joe Dolson (email : joe@joedolson.com)
 
@@ -24,7 +24,7 @@ Version: 1.1.2
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 global $amt_version;
-$amt_version = '1.1.2';
+$amt_version = '1.1.3';
 
 load_plugin_textdomain( 'my-tickets-authnet', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 
@@ -43,14 +43,15 @@ if( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 $license_key = trim( get_option( 'mta_license_key' ) ); 
 // setup the updater
 
-$edd_updater = new EDD_SL_Plugin_Updater( EDD_MTA_STORE_URL, __FILE__, array(
-	'version' 	=> $amt_version,					// current version number
-	'license' 	=> $license_key,			// license key (used get_option above to retrieve from DB)
-	'item_name'     => EDD_MTA_ITEM_NAME,	// name of this plugin
-	'author' 	=> 'Joe Dolson',		// author of this plugin
-	'url'           => home_url()
-) );
-
+if ( class_exists( 'EDD_SL_Plugin_Updater' ) ) { // prevent fatal error if doesn't exist for some reason.
+	$edd_updater = new EDD_SL_Plugin_Updater( EDD_MTA_STORE_URL, __FILE__, array(
+		'version' 	=> $amt_version,					// current version number
+		'license' 	=> $license_key,			// license key (used get_option above to retrieve from DB)
+		'item_name'     => EDD_MTA_ITEM_NAME,	// name of this plugin
+		'author' 	=> 'Joe Dolson',		// author of this plugin
+		'url'           => home_url()
+	) );
+}
 /**
  *
  * @package AuthorizeNet
