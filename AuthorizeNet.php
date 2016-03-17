@@ -28,7 +28,6 @@ $amt_version = '1.1.3';
 
 load_plugin_textdomain( 'my-tickets-authnet', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 
-
 // The URL of the site with EDD installed
 define( 'EDD_MTA_STORE_URL', 'https://www.joedolson.com' ); 
 // The title of your product in EDD and should match the download title in EDD exactly
@@ -290,7 +289,7 @@ function mt_gateway_authorizenet( $form, $gateway, $args ) {
 		$payment_id     = $args['payment'];
 		$shipping_price = ( $args['method'] == 'postal' ) ? $options['mt_shipping'] : 0;
 		$handling       = ( isset( $options['mt_handling'] ) ) ? $options['mt_handling'] : 0;
-		$total          = money_format( '%i', $args['total'] + $shipping_price + $handling );
+		$total          = mt_money_format( '%i', $args['total'] + $shipping_price + $handling );
 		$nonce          = wp_create_nonce( 'my-tickets-authnet-authorizenet' );
 
 		$url  = mt_replace_http( add_query_arg( 'mt_authnet_ipn', 'true', trailingslashit( home_url() ) ) );
@@ -352,4 +351,32 @@ if ( get_option( 'mta_license_key_valid' ) == 'true' || get_option( 'mta_license
 }
 
 
+function mt_authnet_supported() {
+	return array( 
+		'USD', 'CAD', 'GBP', 'EUR', 'AUD', 'NZD'
+	);
+}
+
+add_filter( 'mt_currencies', 'mt_authnet_currencies', 10, 1 );
+function mt_authnet_currencies( $currencies ) {
+	$options  = ( ! is_array( get_option( 'mt_settings' ) ) ) ? array() : get_option( 'mt_settings' );
+	$defaults = mt_default_settings();
+	$options  = array_merge( $defaults, $options );
+	$mt_gateways = $options['mt_gateway'];
+		
+	if ( is_array( $mt_gateways ) && in_array( 'authorizenet', $mt_gateways ) ) {
+		$authnet = mt_authnet_supported();
+		$return = array();
+		foreach( $authnet as $currency ) {
+			$keys = array_keys( $currencies );
+			if ( in_array( $currency, $keys ) ) {
+				$return[$currency] = $currencies[$currency];
+			}
+		}
+		
+		return $return;	
+	}
+	
+	return $currencies;
+}
 		

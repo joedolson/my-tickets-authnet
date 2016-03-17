@@ -24,6 +24,10 @@ New or updated translations are always appreciated. The translation files are in
 
 == Changelog ==
 
+= 1.1.4 =
+
+* Improved currency handling
+
 = 1.1.3 =
 
 * Bug fix: Precautionary check for class existence
