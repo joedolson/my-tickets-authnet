@@ -109,8 +109,8 @@ class mt_AuthorizeNetMyTickets extends mt_AuthorizeNetSIM_Form {
 		$fname    = ( isset( $_POST['mt_fname'] ) ) ? esc_attr( stripslashes( $_POST['mt_fname'] ) ) : '';
 		$lname    = ( isset( $_POST['mt_lname'] ) ) ? esc_attr( stripslashes( $_POST['mt_lname'] ) ) : '';
 		$phone    = ( isset( $_POST['mt_phone'] ) ) ? esc_attr( stripslashes( $_POST['mt_phone'] ) ) : '';
-		global $current_user;
-		get_currentuserinfo();
+		
+		$current_user = wp_get_current_user();
 		$address = get_user_meta( $current_user->ID, '_mt_shipping_address', true );
 		if ( $address ) {
 			$street  = esc_attr( stripslashes( $address['street'] ) );
