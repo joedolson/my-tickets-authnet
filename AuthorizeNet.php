@@ -33,7 +33,7 @@ define( 'EDD_MTA_STORE_URL', 'https://www.joedolson.com' );
 // The title of your product in EDD and should match the download title in EDD exactly
 define( 'EDD_MTA_ITEM_NAME', 'My Tickets: Authorize.net' ); 
 
-if( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
+if ( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 	// load our custom updater if it doesn't already exist 
 	include( dirname( __FILE__ ) . '/updates/EDD_SL_Plugin_Updater.php' );
 }
@@ -46,9 +46,9 @@ if ( class_exists( 'EDD_SL_Plugin_Updater' ) ) { // prevent fatal error if doesn
 	$edd_updater = new EDD_SL_Plugin_Updater( EDD_MTA_STORE_URL, __FILE__, array(
 		'version' 	=> $amt_version,					// current version number
 		'license' 	=> $license_key,			// license key (used get_option above to retrieve from DB)
-		'item_name'     => EDD_MTA_ITEM_NAME,	// name of this plugin
+		'item_name' => EDD_MTA_ITEM_NAME,	// name of this plugin
 		'author' 	=> 'Joe Dolson',		// author of this plugin
-		'url'           => home_url()
+		'url'       => home_url()
 	) );
 }
 /**
@@ -81,6 +81,7 @@ add_action( 'mt_receive_ipn', 'mt_authorizenet_ipn' );
 function mt_authorizenet_ipn() {
 	if ( isset( $_REQUEST['mt_authnet_ipn'] ) && $_REQUEST['mt_authnet_ipn'] == 'true' ) {
 		$options      = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
+		$options      = array_walk_recursive( $options, 'trim' ); // if somebody has spaces in settings
 		$redirect_url = false;
 		// all gateway data should be stored in the core My Tickets settings array
 		$api          = $options['mt_gateways']['authorizenet']['api'];
@@ -88,7 +89,7 @@ function mt_authorizenet_ipn() {
 		// these all need to be set from Authorize.Net data
 		$required_array = array( 'x_response_code', 'x_item_number', 'x_amount', 'x_email', 'x_first_name', 'x_last_name' );
 		foreach ( $required_array as $item ) {
-			if ( !isset( $_POST[$item] ) ) {
+			if ( ! isset( $_POST[$item] ) ) {
 				return false;
 			}
 		}
@@ -252,7 +253,7 @@ function mt_authnet_messages( $message, $code ) {
 /*
  * Maps statuses returned by Authorize.net to the My Tickets status values
  *
- * @param $status int original status
+ * @param int $status original status
 */
 function mt_map_status( $status ) {
 	switch ( $status ) {
@@ -278,9 +279,9 @@ function mt_map_status( $status ) {
 /* 
  * Generates purchase form to be displayed under shopping cart confirmation.
  * 
- * @param $form string
- * @param $gateway name of gateway
- * @param $args array of data for current cart
+ * @param string $form
+ * @param string $gateway name of gateway
+ * @param array $args data for current cart
  */
 add_filter( 'mt_gateway', 'mt_gateway_authorizenet', 10, 3 );
 function mt_gateway_authorizenet( $form, $gateway, $args ) {
@@ -315,7 +316,8 @@ function mt_gateway_authorizenet( $form, $gateway, $args ) {
 /**
  * Insert license key field onto license keys page.
  *
- * @param $fields string Existing fields.
+ * @param string $fields Existing fields.
+ *
  * @return string
  */
 add_action( 'mt_license_fields', 'mta_license_field' );
@@ -367,7 +369,7 @@ function mt_authnet_currencies( $currencies ) {
 	if ( is_array( $mt_gateways ) && in_array( 'authorizenet', $mt_gateways ) ) {
 		$authnet = mt_authnet_supported();
 		$return = array();
-		foreach( $authnet as $currency ) {
+		foreach ( $authnet as $currency ) {
 			$keys = array_keys( $currencies );
 			if ( in_array( $currency, $keys ) ) {
 				$return[$currency] = $currencies[$currency];
@@ -381,7 +383,7 @@ function mt_authnet_currencies( $currencies ) {
 }
 
 
-if ( !function_exists( 'mt_zerodecimal_currency' ) ) {
+if ( ! function_exists( 'mt_zerodecimal_currency' ) ) {
 	// if not up to date and this function doesn't exist, then My Tickets doesn't support zero decimal currencies.
 	function mt_zerodecimal_currency() {
 		return false;
