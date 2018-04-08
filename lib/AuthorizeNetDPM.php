@@ -35,8 +35,8 @@ class mt_AuthorizeNetMyTickets extends mt_AuthorizeNetSIM_Form {
 	 */
 	public static function directPost( $url, $item_number, $price = "0.00", $rand = '', $nonce ) {
 		$options = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
-		$api     = $options['mt_gateways']['authorizenet']['api'];
-		$key     = $options['mt_gateways']['authorizenet']['key'];
+		$api     = trim( $options['mt_gateways']['authorizenet']['api'] );
+		$key     = trim( $options['mt_gateways']['authorizenet']['key'] );
 		// Step 1: Show checkout form to customer.
 		$fp_sequence = $rand; // Any sequential number like an invoice number.
 		return mt_AuthorizeNetMyTickets::getCreditCardForm( $price, $item_number, $fp_sequence, $url, $api, $key, $nonce );
