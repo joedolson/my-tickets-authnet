@@ -7,7 +7,7 @@ Author: Joseph C Dolson
 Author URI: http://www.joedolson.com/my-tickets-authnet/authorizenet
 Version: 1.1.3
 */
-/*  Copyright 2014-2016  Joe Dolson (email : joe@joedolson.com)
+/*  Copyright 2014-2018  Joe Dolson (email : joe@joedolson.com)
 
     This program is open source software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,27 +28,27 @@ $amt_version = '1.1.3';
 
 load_plugin_textdomain( 'my-tickets-authnet', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 
-// The URL of the site with EDD installed
-define( 'EDD_MTA_STORE_URL', 'https://www.joedolson.com' ); 
-// The title of your product in EDD and should match the download title in EDD exactly
-define( 'EDD_MTA_ITEM_NAME', 'My Tickets: Authorize.net' ); 
+// The URL of the site with EDD installed.
+define( 'EDD_MTA_STORE_URL', 'https://www.joedolson.com' );
+// The title of your product in EDD and should match the download title in EDD exactly.
+define( 'EDD_MTA_ITEM_NAME', 'My Tickets: Authorize.net' );
 
 if ( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
-	// load our custom updater if it doesn't already exist 
+	// load our custom updater if it doesn't already exist.
 	include( dirname( __FILE__ ) . '/updates/EDD_SL_Plugin_Updater.php' );
 }
 
-// retrieve our license key from the DB
-$license_key = trim( get_option( 'mta_license_key' ) ); 
-// setup the updater
+// retrieve our license key from the DB.
+$license_key = trim( get_option( 'mta_license_key' ) );
+// setup the updater.
 
 if ( class_exists( 'EDD_SL_Plugin_Updater' ) ) { // prevent fatal error if doesn't exist for some reason.
 	$edd_updater = new EDD_SL_Plugin_Updater( EDD_MTA_STORE_URL, __FILE__, array(
-		'version' 	=> $amt_version,					// current version number
-		'license' 	=> $license_key,			// license key (used get_option above to retrieve from DB)
-		'item_name' => EDD_MTA_ITEM_NAME,	// name of this plugin
-		'author' 	=> 'Joe Dolson',		// author of this plugin
-		'url'       => home_url()
+		'version'   => $amt_version,		// current version number
+		'license'   => $license_key,		// license key (used get_option above to retrieve from DB).
+		'item_name' => EDD_MTA_ITEM_NAME,	// name of this plugin.
+		'author'    => 'Joe Dolson',		// author of this plugin.
+		'url'       => home_url(),
 	) );
 }
 /**
@@ -70,23 +70,22 @@ if ( ! class_exists( "SoapClient" ) ) {
 	require_once( 'lib/AuthorizeNetSOAP.php' );
 }
 
-/*
+add_action( 'mt_receive_ipn', 'mt_authorizenet_ipn' );
+/**
  * Attaches functionality to the response received from authorize.net
  *
  * Requires definition of a request parameter unique to this gateway.
  * Valid response calls mt_handle_payment() and passes the $response value, $response_code, payment $data, and $_REQUEST
- *
-*/
-add_action( 'mt_receive_ipn', 'mt_authorizenet_ipn' );
+ */
 function mt_authorizenet_ipn() {
 	if ( isset( $_REQUEST['mt_authnet_ipn'] ) && $_REQUEST['mt_authnet_ipn'] == 'true' ) {
 		$options      = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
-		$options      = array_walk_recursive( $options, 'trim' ); // if somebody has spaces in settings
+		$options      = array_walk_recursive( $options, 'trim' ); // if somebody has spaces in settings.
 		$redirect_url = false;
-		// all gateway data should be stored in the core My Tickets settings array
+		// all gateway data should be stored in the core My Tickets settings array.
 		$api          = $options['mt_gateways']['authorizenet']['api'];
 		$hash         = $options['mt_gateways']['authorizenet']['hash'];
-		// these all need to be set from Authorize.Net data
+		// these all need to be set from Authorize.Net data.
 		$required_array = array( 'x_response_code', 'x_item_number', 'x_amount', 'x_email', 'x_first_name', 'x_last_name' );
 		foreach ( $required_array as $item ) {
 			if ( ! isset( $_POST[$item] ) ) {
@@ -94,15 +93,15 @@ function mt_authorizenet_ipn() {
 			}
 		}
 
-		$payment_status   = mt_map_status( $_POST['x_response_code'] ); // map response to equivalent from PayPal
+		$payment_status   = mt_map_status( $_POST['x_response_code'] ); // map response to equivalent from Auth.net.
 		$item_number      = $_POST['x_item_number'];
 		$price            = $_POST['x_amount'];
-		$payer_email      = $_POST['x_email']; // must add to form
+		$payer_email      = $_POST['x_email']; // must add to form.
 		$payer_first_name = $_POST['x_first_name'];
 		$payer_last_name  = $_POST['x_last_name'];
 		$phone            = $_POST['x_phone'];
-		
-		// map AuthNet format of address to MT format
+
+		// map AuthNet format of address to MT format.
 		$address = array(
 			'street'  => isset( $_POST['x_ship_to_address'] ) ? $_POST['x_ship_to_address'] : '',
 			'street2' => isset( $_POST['x_shipping_street2'] ) ? $_POST['x_shipping_street2'] : '',
@@ -111,20 +110,20 @@ function mt_authorizenet_ipn() {
 			'country' => isset( $_POST['x_ship_to_country'] ) ? $_POST['x_ship_to_country'] : '',
 			'code'    => isset( $_POST['x_ship_to_zip'] ) ? $_POST['x_ship_to_zip'] : ''
 		);
-		
+
 		$billing = implode( ', ', array(
 			'address' => $_POST['x_address'],
 			'city'    => $_POST['x_city'],
 			'state'   => $_POST['x_state'],
 			'postal'  => $_POST['x_zip'],
-			'country' => $_POST['x_country']			
+			'country' => $_POST['x_country'],
 		) );
-		
-		// authorizeNet IPN data
+
+		// authorizeNet IPN data.
 		$ipn = new mt_AuthorizeNetSIM( $api, $hash );
-		// in sandbox mode, isAuthorizeNet always returns false
-		$allow = ( $options['mt_use_sandbox'] == 'true' ) ? true : false;
-		// check that price paid matches expected total
+		// in sandbox mode, isAuthorizeNet always returns false.
+		$allow = ( 'true' == $options['mt_use_sandbox'] ) ? true : false;
+		// check that price paid matches expected total.
 		$value_match = mt_check_payment_amount( $price, $item_number );
 		if ( ( $ipn->isAuthorizeNet() || ( $allow == true ) ) && $value_match ) {
 			$receipt_id   = get_post_meta( $item_number, '_receipt', true );
@@ -186,8 +185,8 @@ function mt_setup_authnet( $gateways ) {
 		'fields' => array(
 			'api'  => __( 'API Login ID', 'my-tickets-authnet' ),
 			'key'  => __( 'Transaction Key', 'my-tickets-authnet' ),
-			'hash' => __( 'MD5 Hash Value', 'my-tickets-authnet' )
-		)
+			'hash' => __( 'MD5 Hash Value', 'my-tickets-authnet' ),
+		),
 	);
 
 	return $gateways;
@@ -202,7 +201,7 @@ function mt_authnet_shipping_fields( $form, $gateway ) {
 			'mt_shipping_city',
 			'mt_shipping_state',
 			'mt_shipping_country',
-			'mt_shipping_code'
+			'mt_shipping_code',
 		);
 		$replace = array(
 			'x_ship_to_address',
@@ -210,7 +209,7 @@ function mt_authnet_shipping_fields( $form, $gateway ) {
 			'x_ship_to_city',
 			'x_ship_to_state',
 			'x_ship_to_country',
-			'x_ship_to_zip'
+			'x_ship_to_zip',
 		);
 
 		return str_replace( $search, $replace, $form );
@@ -228,11 +227,11 @@ function mt_authnet_transaction( $transaction, $gateway ) {
 	return $transaction;
 }
 
-/*
+add_filter( 'mt_response_messages', 'mt_authnet_messages', 10, 2 );
+/**
  * Feeds custom response messages to return page (cart)
  *
-*/
-add_filter( 'mt_response_messages', 'mt_authnet_messages', 10, 2 );
+ */
 function mt_authnet_messages( $message, $code ) {
 	if ( isset( $_GET['gateway'] ) && $_GET['gateway'] == 'authorizenet' ) {
 		$options = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
@@ -243,7 +242,7 @@ function mt_authnet_messages( $message, $code ) {
 
 			return sprintf( __( 'Thank you for your purchase! Your Authorize.net transaction id is: #%1$s. <a href="%2$s">View your receipt</a>', 'my-tickets-authnet' ), $transaction_id, $receipt );
 		} else {
-			return sprintf( __( "Sorry, an error occurred: %s", 'my-tickets-authnet' ), "<strong>" . sanitize_text_field( $_GET['response_reason_text'] ) . "</strong>" );
+			return sprintf( __( 'Sorry, an error occurred: %s', 'my-tickets-authnet' ), "<strong>" . sanitize_text_field( $_GET['response_reason_text'] ) . "</strong>" );
 		}
 	}
 
@@ -276,9 +275,9 @@ function mt_map_status( $status ) {
 	return $response;
 }
 
-/* 
+/*
  * Generates purchase form to be displayed under shopping cart confirmation.
- * 
+ *
  * @param string $form
  * @param string $gateway name of gateway
  * @param array $args data for current cart
@@ -302,7 +301,7 @@ function mt_gateway_authorizenet( $form, $gateway, $args ) {
 			<input type='hidden' name='discount_rate' value='$discount_rate' />";
 			if ( $quantity == 'true' ) {
 				$form .= "
-				<input type='hidden' name='discount_rate2' value='$discount_rate' />";	
+				<input type='hidden' name='discount_rate2' value='$discount_rate' />";
 			}
 		}
 		*/
@@ -323,7 +322,7 @@ function mt_gateway_authorizenet( $form, $gateway, $args ) {
 add_action( 'mt_license_fields', 'mta_license_field' );
 function mta_license_field( $fields ) {
 	$field = 'mta_license_key';
-	$active = ( get_option( 'mta_license_key_valid' ) == 'valid' ) ? ' <span class="license-activated">(active)</span>' : '';	
+	$active = ( get_option( 'mta_license_key_valid' ) == 'valid' ) ? ' <span class="license-activated">(active)</span>' : '';
 	$name =  __( 'My Tickets: Authorize.net', 'my-tickets-authnet' );
 	return $fields . "
 	<p class='license'>
@@ -335,10 +334,10 @@ function mta_license_field( $fields ) {
 add_action( 'mt_save_license', 'mta_save_license', 10, 2 );
 function mta_save_license( $response, $post ) {
 	$field = 'mta_license_key';
-	$name =  __( 'My Tickets: Authorize.net', 'my-tickets-authnet' );	
+	$name =  __( 'My Tickets: Authorize.net', 'my-tickets-authnet' );
 	$verify = mt_verify_key( $field, EDD_MTA_ITEM_NAME, EDD_MTA_STORE_URL );
 	$verify = "<li>$verify</li>";
-	
+
 	return $response . $verify;
 }
 
@@ -354,7 +353,7 @@ if ( get_option( 'mta_license_key_valid' ) == 'true' || get_option( 'mta_license
 
 
 function mt_authnet_supported() {
-	return array( 
+	return array(
 		'USD', 'CAD', 'GBP', 'EUR', 'AUD', 'NZD'
 	);
 }
@@ -365,7 +364,7 @@ function mt_authnet_currencies( $currencies ) {
 	$defaults = mt_default_settings();
 	$options  = array_merge( $defaults, $options );
 	$mt_gateways = $options['mt_gateway'];
-		
+
 	if ( is_array( $mt_gateways ) && in_array( 'authorizenet', $mt_gateways ) ) {
 		$authnet = mt_authnet_supported();
 		$return = array();
@@ -375,10 +374,10 @@ function mt_authnet_currencies( $currencies ) {
 				$return[$currency] = $currencies[$currency];
 			}
 		}
-		
-		return $return;	
+
+		return $return;
 	}
-	
+
 	return $currencies;
 }
 
@@ -389,4 +388,3 @@ if ( ! function_exists( 'mt_zerodecimal_currency' ) ) {
 		return false;
 	}
 }
-		
