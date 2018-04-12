@@ -242,7 +242,7 @@ function mt_authnet_messages( $message, $code ) {
 
 			return sprintf( __( 'Thank you for your purchase! Your Authorize.net transaction id is: #%1$s. <a href="%2$s">View your receipt</a>', 'my-tickets-authnet' ), $transaction_id, $receipt );
 		} else {
-			return sprintf( __( 'Sorry, an error occurred: %s', 'my-tickets-authnet' ), "<strong>" . sanitize_text_field( $_GET['response_reason_text'] ) . "</strong>" );
+			return sprintf( __( 'Sorry, an error occurred: %s', 'my-tickets-authnet' ), '<strong>' . sanitize_text_field( $_GET['response_reason_text'] ) . "</strong>" );
 		}
 	}
 
