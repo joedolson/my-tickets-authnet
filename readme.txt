@@ -2,8 +2,9 @@
 Contributors: joedolson
 Donate link: http://www.joedolson.com/my-tickets/add-ons/
 Tags: my-tickets, authorize.net
-Requires at least: 3.9.8
-Tested up to: 4.4.2
+Requires at least: 4.4
+Tested up to: 4.9
+Requires PHP: 5.3
 Stable tag: trunk
 
 Support for Authorize.net in My Tickets.
