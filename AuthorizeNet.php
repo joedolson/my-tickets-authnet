@@ -439,9 +439,7 @@ function mta_requires_ssl() {
  * Get currencies supported by gateway.
  */
 function mt_authnet_supported() {
-	return array(
-		'USD', 'CAD', 'GBP', 'EUR', 'AUD', 'NZD'
-	);
+	return array( 'USD', 'CAD', 'GBP', 'EUR', 'AUD', 'NZD' );
 }
 
 add_filter( 'mt_currencies', 'mt_authnet_currencies', 10, 1 );
@@ -472,12 +470,4 @@ function mt_authnet_currencies( $currencies ) {
 	}
 
 	return $currencies;
-}
-
-
-if ( ! function_exists( 'mt_zerodecimal_currency' ) ) {
-	// if not up to date and this function doesn't exist, then My Tickets doesn't support zero decimal currencies.
-	function mt_zerodecimal_currency() {
-		return false;
-	}
 }
