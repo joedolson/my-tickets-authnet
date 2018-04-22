@@ -28,6 +28,9 @@ New or updated translations are always appreciated. The translation files are in
 = 1.1.4 =
 
 * Improved currency handling
+* Constrain admin notices to My Tickets settings.
+* Add admin notice to require SSL.
+* Update code style.
 
 = 1.1.3 =
 

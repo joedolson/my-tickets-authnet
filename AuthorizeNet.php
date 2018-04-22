@@ -392,14 +392,33 @@ if ( 'true'== get_option( 'mta_license_key_valid' ) || 'valid' == get_option( 'm
  * Display admin notice if license not provided.
  */
 function mta_licensed() {
-	// Translators: Settings page URL.
-	$message = sprintf( __( "Please <a href='%s'>enter your My Tickets: Authorize.net license key</a> to be eligible for support.", 'my-tickets-authnet' ), admin_url( 'admin.php?page=my-tickets' ) );
-	if ( ! current_user_can( 'manage_options' ) ) {
-		return;
-	} else {
-		echo "<div class='error'><p>$message</p></div>";
+	global $current_screen;
+	if ( stripos( $current_screen->id, 'my-tickets' ) ) {
+		// Translators: Settings page URL.
+		$message = sprintf( __( "Please <a href='%s'>enter your My Tickets: Authorize.net license key</a> to be eligible for support.", 'my-tickets-authnet' ), admin_url( 'admin.php?page=my-tickets' ) );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		} else {
+			echo "<div class='error'><p>$message</p></div>";
+		}
 	}
 }
+
+add_action( 'admin_notices', 'mta_requires_ssl' );
+/**
+ * Authorize.net only functions under SSL. Notify user that this is required.
+ */
+function mta_requires_ssl() {
+	global $current_screen;
+	if ( stripos( $current_screen->id, 'my-tickets' ) ) {
+		if ( stripos( home_url(), 'https' ) ) {
+			return;
+		} else {
+			echo "<div class='error'><p>" . __( 'Authorize.net requires an SSL Certificate. Please switch your site to HTTPS. <a href="https://websitesetup.org/http-to-https-wordpress/">How to switch WordPress to HTTPS</a>', 'my-tickets-stripe' ) . '</p></div>';
+		}
+	}
+}
+
 
 /**
  * Get currencies supported by gateway.
