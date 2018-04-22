@@ -1,29 +1,11 @@
 <?php
 /**
- * Demonstrates the Direct Post Method.
- *
- * To implement the Direct Post Method you need to implement 3 steps:
- *
- * Step 1: Add necessary hidden fields to your checkout form and make your form is set to post to AuthorizeNet.
- *
- * Step 2: Receive a response from AuthorizeNet, do your business logic, and return
- *         a relay response snippet with a url to redirect the customer to.
- *
- * Step 3: Show a receipt page to your customer.
- *
- * This class is more for demonstration purposes than actual production use.
- *
+ * My Tickets Direct Post Method. (Deprecated; replace with Accept.js)
  *
  * @package    AuthorizeNet
  * @subpackage AuthorizeNetDPM
  */
 
-/**
- * A class that demonstrates the DPM method.
- *
- * @package    AuthorizeNet
- * @subpackage AuthorizeNetDPM
- */
 class mt_AuthorizeNetMyTickets extends mt_AuthorizeNetSIM_Form {
 
 	const LIVE_URL = 'https://secure2.authorize.net/gateway/transact.dll';
@@ -32,11 +14,11 @@ class mt_AuthorizeNetMyTickets extends mt_AuthorizeNetSIM_Form {
 	/**
 	 * Implements all 3 steps of the Direct Post Method
 	 *
-	 * @param string $url URL.
+	 * @param string  $url URL.
 	 * @param integer $item_number Payment ID.
-	 * @param float $price Total to charge.
+	 * @param float   $price Total to charge.
 	 * @param integer $rand ID.
-	 * @param string $nonce Number used once.
+	 * @param string  $nonce Number used once.
 	 *
 	 * @return string
 	 */
@@ -111,11 +93,11 @@ class mt_AuthorizeNetMyTickets extends mt_AuthorizeNetSIM_Form {
 		$hidden_fields .= "<input type='hidden' name='x_referer_url' value='" . $relay_url . "' />";
 		$hidden_fields .= '<input type="hidden" name="x_item_number" value="' . $item_number . '" />';
 		$hidden_fields .= '<input type="hidden" name="x_description" value="' . $description . ' " />';
-		$post_url = ( $test_mode ? self::SANDBOX_URL : self::LIVE_URL );
-		$email    = ( isset( $_POST['mt_email'] ) ) ? esc_attr( $_POST['mt_email'] ) : '';
-		$fname    = ( isset( $_POST['mt_fname'] ) ) ? esc_attr( stripslashes( $_POST['mt_fname'] ) ) : '';
-		$lname    = ( isset( $_POST['mt_lname'] ) ) ? esc_attr( stripslashes( $_POST['mt_lname'] ) ) : '';
-		$phone    = ( isset( $_POST['mt_phone'] ) ) ? esc_attr( stripslashes( $_POST['mt_phone'] ) ) : '';
+		$post_url       = ( $test_mode ? self::SANDBOX_URL : self::LIVE_URL );
+		$email          = ( isset( $_POST['mt_email'] ) ) ? esc_attr( $_POST['mt_email'] ) : '';
+		$fname          = ( isset( $_POST['mt_fname'] ) ) ? esc_attr( stripslashes( $_POST['mt_fname'] ) ) : '';
+		$lname          = ( isset( $_POST['mt_lname'] ) ) ? esc_attr( stripslashes( $_POST['mt_lname'] ) ) : '';
+		$phone          = ( isset( $_POST['mt_phone'] ) ) ? esc_attr( stripslashes( $_POST['mt_phone'] ) ) : '';
 		
 		$current_user = wp_get_current_user();
 		$address      = get_user_meta( $current_user->ID, '_mt_shipping_address', true );
@@ -192,12 +174,10 @@ class mt_AuthorizeNetMyTickets extends mt_AuthorizeNetSIM_Form {
 					apply_filters( 'mta_custom_address_fields', '', $price, $item_number )
 				. '
 			</fieldset>' .
-		        mt_render_field( 'address', 'authorizenet' )
-		        . '<input type="submit" name="submit" class="button" value="' . __( 'Pay with Authorize.net', 'my-tickets-authnet' ) . '" />';
+				mt_render_field( 'address', 'authorizenet' ) . '<input type="submit" name="submit" class="button" value="' . __( 'Pay with Authorize.net', 'my-tickets-authnet' ) . '" />';
 		$form .= apply_filters( 'mt_authorizenet_form', '', $price );
 		$form .= '</form>';
 
 		return $form;
 	}
-
 }
