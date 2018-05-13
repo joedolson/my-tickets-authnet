@@ -426,7 +426,7 @@ add_action( 'admin_notices', 'mta_requires_ssl' );
 function mta_requires_ssl() {
 	global $current_screen;
 	if ( stripos( $current_screen->id, 'my-tickets' ) ) {
-		if ( stripos( home_url(), 'https' ) ) {
+		if ( 0 === stripos( home_url(), 'https' ) ) {
 			return;
 		} else {
 			echo "<div class='error'><p>" . __( 'Authorize.net requires an SSL Certificate. Please switch your site to HTTPS. <a href="https://websitesetup.org/http-to-https-wordpress/">How to switch WordPress to HTTPS</a>', 'my-tickets-stripe' ) . '</p></div>';
