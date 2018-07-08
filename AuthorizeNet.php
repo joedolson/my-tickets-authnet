@@ -1,6 +1,6 @@
 <?php
 /**
- * My Tickets: Stripe payment gateway
+ * My Tickets: Authorize.net payment gateway
  *
  * @package     My Tickets: Authorize.net
  * @author      Joe Dolson
