@@ -48,7 +48,7 @@ define( 'EDD_MTA_STORE_URL', 'https://www.joedolson.com' );
 // The title of your product in EDD and should match the download title in EDD exactly.
 define( 'EDD_MTA_ITEM_NAME', 'My Tickets: Authorize.net' );
 
-if ( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
+if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 	// load our custom updater if it doesn't already exist.
 	include( dirname( __FILE__ ) . '/updates/EDD_SL_Plugin_Updater.php' );
 }
@@ -59,30 +59,12 @@ $license_key = trim( get_option( 'mta_license_key' ) );
 
 if ( class_exists( 'EDD_SL_Plugin_Updater' ) ) { // prevent fatal error if doesn't exist for some reason.
 	$edd_updater = new EDD_SL_Plugin_Updater( EDD_MTA_STORE_URL, __FILE__, array(
-		'version'   => $amt_version,		// current version number
-		'license'   => $license_key,		// license key (used get_option above to retrieve from DB).
-		'item_name' => EDD_MTA_ITEM_NAME,	// name of this plugin.
-		'author'    => 'Joe Dolson',		// author of this plugin.
+		'version'   => $amt_version,        // current version number
+		'license'   => $license_key,        // license key (use above to retrieve from DB).
+		'item_name' => EDD_MTA_ITEM_NAME,   // name of this plugin.
+		'author'    => 'Joe Dolson',        // author of this plugin.
 		'url'       => home_url(),
 	) );
-}
-/**
- *
- * @package AuthorizeNet
- */
-require_once( 'lib/shared/AuthorizeNetRequest.php' );
-require_once( 'lib/shared/AuthorizeNetTypes.php' );
-require_once( 'lib/shared/AuthorizeNetXMLResponse.php' );
-require_once( 'lib/shared/AuthorizeNetResponse.php' );
-require_once( 'lib/AuthorizeNetAIM.php' );
-require_once( 'lib/AuthorizeNetARB.php' );
-require_once( 'lib/AuthorizeNetCIM.php' );
-require_once( 'lib/AuthorizeNetSIM.php' );
-require_once( 'lib/AuthorizeNetDPM.php' );
-require_once( 'lib/AuthorizeNetTD.php' );
-
-if ( ! class_exists( 'SoapClient' ) ) {
-	require_once( 'lib/AuthorizeNetSOAP.php' );
 }
 
 add_action( 'mt_receive_ipn', 'mt_authorizenet_ipn' );
@@ -135,9 +117,7 @@ function mt_authorizenet_ipn() {
 		) );
 
 		// authorizeNet IPN data.
-		$ipn = new mt_AuthorizeNetSIM( $api, $hash );
-		// in sandbox mode, isAuthorizeNet always returns false.
-		$allow = ( 'true' == $options['mt_use_sandbox'] ) ? true : false;
+		// This will only handle refunds; get refund data if sent. Model on Stripe.
 		// check that price paid matches expected total.
 		$value_match = mt_check_payment_amount( $price, $item_number );
 		if ( ( $ipn->isAuthorizeNet() || ( true == $allow ) ) && $value_match ) {
@@ -181,10 +161,6 @@ function mt_authorizenet_ipn() {
 			mt_handle_payment( $response, $response_code, $data, $_REQUEST );
 		} else {
 			wp_die( __( 'That transaction was not handled by Authorize.net.', 'my-tickets-authnet' ) );
-		}
-		if ( $redirect_url ) {
-			echo mt_AuthorizeNetMyTickets::getRelayResponseSnippet( esc_url_raw( $redirect_url ) );
-			die;
 		}
 	}
 
@@ -332,25 +308,15 @@ add_filter( 'mt_gateway', 'mt_gateway_authorizenet', 10, 3 );
 function mt_gateway_authorizenet( $form, $gateway, $args ) {
 	if ( 'authorizenet' == $gateway ) {
 		$options        = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
+		$url            = mt_replace_http( add_query_arg( 'mt_authnet_ipn', 'true', trailingslashit( home_url() ) ) );
 		$payment_id     = $args['payment'];
-		$shipping_price = ( 'postal' == $args['method'] ) ? $options['mt_shipping'] : 0;
+		$amount         = $args['total'];
 		$handling       = ( isset( $options['mt_handling'] ) ) ? $options['mt_handling'] : 0;
-		$total          = mt_money_format( '%i', $args['total'] + $shipping_price + $handling );
-		$nonce          = wp_create_nonce( 'my-tickets-authnet-authorizenet' );
+		$shipping       = ( 'postal' == $args['method'] ) ? $options['mt_shipping'] : 0;
+		$total          = ( $amount + $handling + $shipping );
+		$purchaser      = get_the_title( $payment_id );
+		$form           = mt_authnet_form( $url, $payment_id, $total, $args );
 
-		$url  = mt_replace_http( add_query_arg( 'mt_authnet_ipn', 'true', trailingslashit( home_url() ) ) );
-		$rand = time() . rand( 100000, 999999 );
-		$form = mt_AuthorizeNetMyTickets::directPost( $url, $payment_id, $total, $rand, $nonce );
-		/* This might be part of handling discount codes.
-		if ( $discount == true && $discount_rate > 0 ) {
-			$form .= "
-			<input type='hidden' name='discount_rate' value='$discount_rate' />";
-			if ( $quantity == 'true' ) {
-				$form .= "
-				<input type='hidden' name='discount_rate2' value='$discount_rate' />";
-			}
-		}
-		*/
 		$form .= apply_filters( 'mt_authnet_form', '', $gateway, $args );
 	}
 
@@ -429,7 +395,7 @@ function mta_requires_ssl() {
 		if ( 0 === stripos( home_url(), 'https' ) ) {
 			return;
 		} else {
-			echo "<div class='error'><p>" . __( 'Authorize.net requires an SSL Certificate. Please switch your site to HTTPS. <a href="https://websitesetup.org/http-to-https-wordpress/">How to switch WordPress to HTTPS</a>', 'my-tickets-stripe' ) . '</p></div>';
+			echo "<div class='error'><p>" . __( 'Authorize.net requires an SSL Certificate. Please switch your site to HTTPS. <a href="https://websitesetup.org/http-to-https-wordpress/">How to switch WordPress to HTTPS</a>', 'my-tickets-authnet' ) . '</p></div>';
 		}
 	}
 }
@@ -470,4 +436,234 @@ function mt_authnet_currencies( $currencies ) {
 	}
 
 	return $currencies;
+}
+
+
+
+/**
+ * Set up form for making a Authorize.net payment via AIM.
+ *
+ * @param string  $url $url to send query to. (Unused)
+ * @param integer $payment_id ID for this payment.
+ * @param float   $total Total amount of payment.
+ * @param array   $args Payment arguments.
+ *
+ * @return string.
+ */
+function mt_authnet_form( $url, $payment_id, $total, $args ) {
+	$options = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
+	$year    = date( 'Y' );
+	$years   = '';
+	for( $i = 0; $i < 20; $i ++ ) {
+		$years .= "<option value='$year'>$year</option>";
+		$year ++;
+	}
+	$nonce = wp_create_nonce( 'my-tickets-authnet' );
+	$form  = "
+	<div class='payment-errors' aria-live='assertive'></div>
+	<form action='' method='POST' id='my-tickets-authnet-payment-form'>
+		<input type='hidden' name='_wp_authnet_nonce' value='$nonce' />
+		<input type='hidden' name='_mt_action' value='authnet' />
+		<div class='card section'>
+		<fieldset>
+			<legend>" . __( 'Credit Card Details', 'my-tickets-authnet' ) . "</legend>
+			<div class='form-row'>
+				<label>" . __( 'Name on card', 'my-tickets-authnet' ) . '</label>
+				<input type="text" size="20" autocomplete="cc-name" class="card-name" />
+			</div>
+			<div class="form-row">
+				<label>' . __( 'Credit Card Number', 'my-tickets-authnet' ) . '</label>
+				<input type="text" size="20" autocomplete="cc-number" class="card-number cc-num" />
+			</div>
+			<div class="form-row">
+				<label for="cvc">' . __( 'CVC', 'my-tickets-authnet' ) . '</label>
+				<input type="text" size="4" autocomplete="off" class="card-cvc cc-cvc" id="cvc" />
+			</div>
+			<div class="form-row">
+			<fieldset>
+				<legend>' . __( 'Expiration (MM/YY)', 'my-tickets-authnet' ) . '</legend>
+				<label for="expiry-month" class="screen-reader-text">' . __('Expiration month', 'my-tickets-authnet') . '</label>
+				<select class="card-expiry-month" id="expiry-month">
+					<option value="01">01</option>
+					<option value="02">02</option>
+					<option value="03">03</option>
+					<option value="04">04</option>
+					<option value="05">05</option>
+					<option value="06">06</option>
+					<option value="07">07</option>
+					<option value="08">08</option>
+					<option value="09">09</option>
+					<option value="10">10</option>
+					<option value="11">11</option>
+					<option value="12">12</option>
+				</select>
+				<span> / </span>
+				<label for="expiry-year" class="screen-reader-text">' . __( 'Expiration year', 'my-tickets-authnet' ) . '</label>
+				<select class="card-expiry-year" id="expiry-year">
+					' . $years . '
+				</select>
+			</fieldset>
+			</div>
+		</fieldset>
+		</div>
+		<div class="address section">
+		<fieldset>
+		<legend>' . __( 'Billing Address', 'my-tickets-authnet' ) . '</legend>
+			<div class="form-row">
+				<label for="address1">' . __( 'Address (1)', 'my-tickets-authnet' ) . '</label>
+				<input type="text" id="address1" name="card_address" class="card-address" />
+			</div>
+			<div class="form-row">
+				<label for="address2">' . __( 'Address (2)', 'my-tickets-authnet' ) . '</label>
+				<input type="text" id="address2" name="card_address_2" class="card-address-2" />
+			</div>
+			<div class="form-row">
+				<label for="card_city">' . __( 'City', 'my-tickets-authnet' ) . '</label>
+				<input type="text" id="card_city" name="card_city" class="card-city" />
+			</div>
+			<div class="form-row">
+				<label for="card_zip">' . __( 'Zip / Postal Code', 'my-tickets-authnet' ) . '</label>
+				<input type="text" id="card_zip" name="card_zip" class="card-zip" />
+			</div>
+			<div class="form-row">
+				<label for="card_country">' . __( 'Country', 'my-tickets-authnet' ) . '</label>
+				<input type="text" id="card_country" name="card_country" class="card-country" />
+			</div>
+			<div class="form-row">
+				<label for="card_state">' . __( 'State', 'my-tickets-authnet' ) . '</label>
+				<input type="text" id="card_state" name="card_state" class="card-state" />
+			</div>
+		</fieldset>
+		</div>';
+	$form .= "<input type='hidden' name='payment_id' value='" . esc_attr( $payment_id ) . "' />
+	<input type='hidden' name='amount' value='$total' />";
+	$form .= mt_render_field( 'address', 'authnet' );
+	$form .= "<input type='submit' name='authnet_submit' id='mt-authnet-submit' class='button' value='" . esc_attr( apply_filters( 'mt_gateway_button_text', __( 'Pay Now', 'my-tickets' ), 'authnet' ) ) . "' />";
+	$form .= apply_filters( 'mt_authnet_form', '', 'authnet', $args );
+	$form .= '</form>';
+
+	return $form;
+}
+
+add_action( 'init', 'my_tickets_authnet_process_payment' );
+/**
+ * Handle processing of payment.
+ */
+function my_tickets_authnet_process_payment() {
+	if ( isset( $_POST['_mt_action']) && 'authnet' == $_POST['_mt_action'] && wp_verify_nonce( $_POST['_wp_authnet_nonce'], 'my-tickets-authnet' ) ) {
+
+		// Call this only when needed.
+		require_once( dirname( __FILE__ ) . '/includes/anet_php_sdk/AuthorizeNet.php' );
+
+		$options         = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
+		$authnet_options = $options['mt_gateways']['authnet'];
+		$purchase_page   = get_permalink( $options['mt_purchase_page'] );
+		$transaction = new AuthorizeNetAIM( $authnet_options['api'], $authnet_options['hash'] );
+
+		// check if we are using test mode.
+		if ( isset( $authnet_options['test_mode'] ) && 'true' == $authnet_options['test_mode'] ) {
+			$transaction->setSandbox( true );
+		} else {
+			$transaction->setSandbox( false );
+		}
+
+		$payment_id  = $_POST['payment_id'];
+		$payer_email = get_post_meta( $payment_id, '_email', true );
+		$paid        = get_post_meta( $payment_id, '_total_paid', true );
+		$payer_name  = get_the_title( $payment_id );
+		$names       = explode( ' ', $payer_name );
+		$first_name  = array_shift( $names );
+		$last_name   = implode( ' ', $names );
+		$passed      = $_POST['amount'];
+		$address     = array();
+		// compare amounts from payment and from passage.
+		if ( $amount != $passed ) {
+			// probably fraudulent: user attempted to change the amount paid. Raise fraud flag?
+		}
+		// Set transaction values.
+		$transaction->amount      = $paid;
+		$transaction->card_num    = strip_tags( trim( $_POST['card_number'] ) );
+		$transaction->card_code   = strip_tags( trim( $_POST['card_cvc'] ) );
+		$transaction->exp_date    = strip_tags( trim( $_POST['card_exp_month'] ) ) . '/' . strip_tags( trim( $_POST['card_exp_year'] ) );
+
+		$transaction->description = 'Provide Description';
+		$transaction->first_name  = $first_name;
+		$transaction->last_name   = $last_name;
+
+		$transaction->address     = $card_info['card_address'] . ' ' . $card_info['card_address_2'];
+		$transaction->city        = $card_info['card_city'];
+		$transaction->country     = $card_info['card_country'];
+		$transaction->state       = $card_info['card_state'];
+		$transaction->zip         = $card_info['card_zip'];
+		$transaction->customer_ip = edd_get_ip();
+		$transaction->email       = $payer_email;
+		$transaction->invoice_num = $payment_id;
+
+		// attempt to charge the customer's card.
+		try {
+			$response = $transaction->authorizeAndCapture();
+
+			// CHARGE THE CARD USING AUTHNET
+			$receipt_id     = get_post_meta( $payment_id, '_receipt', true ); // where does that come from.
+
+			// Get shipping adress information and map to MT format.
+			if ( isset( $_POST['mt_shipping_street'] ) ) {
+				$address = array(
+					'street'  => isset( $_POST['mt_shipping_street'] ) ? $_POST['mt_shipping_street'] : '',
+					'street2' => isset( $_POST['mt_shipping_street2'] ) ? $_POST['mt_shipping_street2'] : '',
+					'city'    => isset( $_POST['mt_shipping_city'] ) ? $_POST['mt_shipping_city'] : '',
+					'state'   => isset( $_POST['mt_shipping_state'] ) ? $_POST['mt_shipping_state'] : '',
+					'country' => isset( $_POST['mt_shipping_code'] ) ? $_POST['mt_shipping_code'] : '',
+					'code'    => isset( $_POST['mt_shipping_country'] ) ? $_POST['mt_shipping_country'] : '',
+				);
+			}
+			if ( $response->approved ) {
+				$payment_status = 'Completed';
+				$redirect       = mt_replace_http( esc_url_raw( add_query_arg( array(
+					'response_code'  => 'thanks',
+					'gateway'        => 'authnet',
+					'transaction_id' => $transaction_id,
+					'receipt_id'     => $receipt_id,
+					'payment'        => $payment_id,
+				), $purchase_page ) ) );
+				$status = 'VERIFIED';
+			} else {
+				// Handle failure case.
+				$status = 'PENDING';
+				print_r( $response );
+			}
+
+		} catch ( Exception $e ) {
+			// Handle exception.
+			print_r( $e );
+			//$body           = $e->jsonBody;
+			//$message        = $body['error']['message'];
+			$payment_status = 'Failed';
+			// redirect on failed payment.
+			$redirect = mt_replace_http( esc_url_raw( add_query_arg( array(
+				'response_code' => 'failed',
+				'gateway'       => 'authnet',
+				'payment'       => $payment_id,
+				'reason'        => urlencode( $message ),
+			), $purchase_page ) ) );
+		}
+
+		$data  = array(
+			'transaction_id' => $transaction_id,
+			'price'          => $amount / 100,
+			'currency'       => $options['mt_currency'],
+			'email'          => $payer_email,
+			'first_name'     => $first_name, // get from charge.
+			'last_name'      => $last_name, // get from charge.
+			'status'         => $payment_status,
+			'purchase_id'    => $payment_id,
+			'shipping'       => $address,
+		);
+
+		mt_handle_payment( 'VERIFIED', '200', $data, $_REQUEST );
+
+		// redirect back to our previous page with the added query variable
+		wp_redirect( $redirect );
+		exit;
+	}
 }
