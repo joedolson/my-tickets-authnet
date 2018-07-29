@@ -468,22 +468,22 @@ function mt_authnet_form( $url, $payment_id, $total, $args ) {
 		<fieldset>
 			<legend>" . __( 'Credit Card Details', 'my-tickets-authnet' ) . "</legend>
 			<div class='form-row'>
-				<label>" . __( 'Name on card', 'my-tickets-authnet' ) . '</label>
-				<input type="text" size="20" autocomplete="cc-name" class="card-name" />
+				<label for='mt-card-name'>" . __( 'Name on card', 'my-tickets-authnet' ) . '</label>
+				<input type="text" id="mt-card-name" size="20" autocomplete="cc-name" class="card-name" name="mt-card-name" />
 			</div>
 			<div class="form-row">
-				<label>' . __( 'Credit Card Number', 'my-tickets-authnet' ) . '</label>
-				<input type="text" size="20" autocomplete="cc-number" class="card-number cc-num" />
+				<label for="mt-cc-number">' . __( 'Credit Card Number', 'my-tickets-authnet' ) . '</label>
+				<input type="text" id="mt-cc-number" size="20" autocomplete="cc-number" class="card-number cc-num" name="card-number" />
 			</div>
 			<div class="form-row">
 				<label for="cvc">' . __( 'CVC', 'my-tickets-authnet' ) . '</label>
-				<input type="text" size="4" autocomplete="off" class="card-cvc cc-cvc" id="cvc" />
+				<input type="text" size="4" autocomplete="off" class="card-cvc cc-cvc" name="card-cvc" id="cvc" />
 			</div>
 			<div class="form-row">
 			<fieldset>
 				<legend>' . __( 'Expiration (MM/YY)', 'my-tickets-authnet' ) . '</legend>
 				<label for="expiry-month" class="screen-reader-text">' . __('Expiration month', 'my-tickets-authnet') . '</label>
-				<select class="card-expiry-month" id="expiry-month">
+				<select class="card-expiry-month" id="expiry-month" name="expiry-month">
 					<option value="01">01</option>
 					<option value="02">02</option>
 					<option value="03">03</option>
@@ -499,7 +499,7 @@ function mt_authnet_form( $url, $payment_id, $total, $args ) {
 				</select>
 				<span> / </span>
 				<label for="expiry-year" class="screen-reader-text">' . __( 'Expiration year', 'my-tickets-authnet' ) . '</label>
-				<select class="card-expiry-year" id="expiry-year">
+				<select class="card-expiry-year" id="expiry-year" name="expiry-year">
 					' . $years . '
 				</select>
 			</fieldset>
@@ -556,12 +556,11 @@ function my_tickets_authnet_process_payment() {
 		require_once( dirname( __FILE__ ) . '/includes/anet_php_sdk/AuthorizeNet.php' );
 
 		$options         = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
-		$authnet_options = $options['mt_gateways']['authnet'];
+		$authnet_options = $options['mt_gateways']['authorizenet'];
 		$purchase_page   = get_permalink( $options['mt_purchase_page'] );
-		$transaction = new AuthorizeNetAIM( $authnet_options['api'], $authnet_options['hash'] );
-
+		$transaction     = new AuthorizeNetAIM( $authnet_options['api'], $authnet_options['key'] );
 		// check if we are using test mode.
-		if ( isset( $authnet_options['test_mode'] ) && 'true' == $authnet_options['test_mode'] ) {
+		if ( isset( $options['mt_use_sandbox'] ) && 'true' == $options['mt_use_sandbox'] ) {
 			$transaction->setSandbox( true );
 		} else {
 			$transaction->setSandbox( false );
@@ -577,35 +576,42 @@ function my_tickets_authnet_process_payment() {
 		$passed      = $_POST['amount'];
 		$address     = array();
 		// compare amounts from payment and from passage.
-		if ( $amount != $passed ) {
+		if ( $paid != $passed ) {
+			$redirect = mt_replace_http( esc_url_raw( add_query_arg( array(
+					'response_code' => 'failed',
+					'gateway'       => 'authnet',
+					'payment_id'       => $payment_id,
+					'reason'        => urlencode( __( 'The purchase amount on this sale was changed in an invalid manner.', 'my-tickets-authnet' ) ),
+				), $purchase_page ) ) );
+			wp_safe_redirect( $redirect );
 			// probably fraudulent: user attempted to change the amount paid. Raise fraud flag?
 		}
 		// Set transaction values.
 		$transaction->amount      = $paid;
-		$transaction->card_num    = strip_tags( trim( $_POST['card_number'] ) );
-		$transaction->card_code   = strip_tags( trim( $_POST['card_cvc'] ) );
-		$transaction->exp_date    = strip_tags( trim( $_POST['card_exp_month'] ) ) . '/' . strip_tags( trim( $_POST['card_exp_year'] ) );
-
-		$transaction->description = 'Provide Description';
-		$transaction->first_name  = $first_name;
-		$transaction->last_name   = $last_name;
-
+		$transaction->card_num    = strip_tags( trim( $_POST['card-number'] ) );
+		$transaction->card_code   = strip_tags( trim( $_POST['card-cvc'] ) );
+		$transaction->exp_date    = strip_tags( trim( $_POST['expiry-month'] ) ) . '/' . strip_tags( trim( $_POST['expiry-year'] ) );
+		// Translators: Blog name.
+		$transaction->description = sprintf( __( '%s - Ticket Order', 'my-tickets' ), get_option( 'blogname' ) );
+		$name                     = $_POST['mt-card-name'];
+		$names                    = explode( ' ', $name );
+		$f_name                   = array_shift( $names );
+		$l_name                   = implode( ' ', $names );
+		$transaction->first_name  = $f_name;
+		$transaction->last_name   = $l_name;
 		$transaction->address     = $card_info['card_address'] . ' ' . $card_info['card_address_2'];
 		$transaction->city        = $card_info['card_city'];
 		$transaction->country     = $card_info['card_country'];
 		$transaction->state       = $card_info['card_state'];
 		$transaction->zip         = $card_info['card_zip'];
-		$transaction->customer_ip = edd_get_ip();
+		$transaction->customer_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
 		$transaction->email       = $payer_email;
 		$transaction->invoice_num = $payment_id;
-
 		// attempt to charge the customer's card.
 		try {
-			$response = $transaction->authorizeAndCapture();
-
-			// CHARGE THE CARD USING AUTHNET
-			$receipt_id     = get_post_meta( $payment_id, '_receipt', true ); // where does that come from.
-
+			// Charge the card using Authorize.net.
+			$response   = $transaction->authorizeAndCapture();
+			$receipt_id = get_post_meta( $payment_id, '_receipt', true ); 
 			// Get shipping adress information and map to MT format.
 			if ( isset( $_POST['mt_shipping_street'] ) ) {
 				$address = array(
@@ -624,37 +630,43 @@ function my_tickets_authnet_process_payment() {
 					'gateway'        => 'authnet',
 					'transaction_id' => $transaction_id,
 					'receipt_id'     => $receipt_id,
-					'payment'        => $payment_id,
+					'payment_id'        => $payment_id,
 				), $purchase_page ) ) );
 				$status = 'VERIFIED';
 			} else {
 				// Handle failure case.
-				$status = 'PENDING';
-				print_r( $response );
+				$status         = 'Pending';
+				$message        = $response->response_reason_text;
+				$payment_status = 'Failed';
+				// redirect on failed payment.
+				$redirect = mt_replace_http( esc_url_raw( add_query_arg( array(
+					'response_code' => 'failed',
+					'gateway'       => 'authnet',
+					'payment_id'       => $payment_id,
+					'reason'        => urlencode( $message ),
+				), $purchase_page ) ) );
 			}
 
 		} catch ( Exception $e ) {
 			// Handle exception.
-			print_r( $e );
-			//$body           = $e->jsonBody;
-			//$message        = $body['error']['message'];
+			$message        = $e->response_reason_text;
 			$payment_status = 'Failed';
 			// redirect on failed payment.
 			$redirect = mt_replace_http( esc_url_raw( add_query_arg( array(
 				'response_code' => 'failed',
 				'gateway'       => 'authnet',
-				'payment'       => $payment_id,
+				'payment_id'       => $payment_id,
 				'reason'        => urlencode( $message ),
 			), $purchase_page ) ) );
 		}
 
 		$data  = array(
 			'transaction_id' => $transaction_id,
-			'price'          => $amount / 100,
+			'price'          => $amount,
 			'currency'       => $options['mt_currency'],
 			'email'          => $payer_email,
-			'first_name'     => $first_name, // get from charge.
-			'last_name'      => $last_name, // get from charge.
+			'first_name'     => $f_name, // get from charge info
+			'last_name'      => $l_name, // get from charge info.
 			'status'         => $payment_status,
 			'purchase_id'    => $payment_id,
 			'shipping'       => $address,
@@ -667,3 +679,13 @@ function my_tickets_authnet_process_payment() {
 		exit;
 	}
 }
+
+/**
+ * Set cURL to use SSL version supporting TLS 1.2
+ *
+ * @param object $handle CURL object.
+ */
+function mta_http_api_curl( $handle ) {
+	curl_setopt( $handle, CURLOPT_SSLVERSION, 6 );
+}
+add_action( 'http_api_curl', 'mta_http_api_curl' );
