@@ -578,7 +578,7 @@ function my_tickets_authnet_process_payment() {
 			$redirect = mt_replace_http( esc_url_raw( add_query_arg( array(
 					'response_code' => 'failed',
 					'gateway'       => 'authnet',
-					'payment_id'       => $payment_id,
+					'payment_id'    => $payment_id,
 					'reason'        => urlencode( __( 'The purchase amount on this sale was changed in an invalid manner.', 'my-tickets-authnet' ) ),
 				), $purchase_page ) ) );
 			wp_safe_redirect( $redirect );
@@ -628,7 +628,7 @@ function my_tickets_authnet_process_payment() {
 					'gateway'        => 'authnet',
 					'transaction_id' => $transaction_id,
 					'receipt_id'     => $receipt_id,
-					'payment_id'        => $payment_id,
+					'payment_id'     => $payment_id,
 				), $purchase_page ) ) );
 				$status = 'VERIFIED';
 			} else {
@@ -640,7 +640,7 @@ function my_tickets_authnet_process_payment() {
 				$redirect = mt_replace_http( esc_url_raw( add_query_arg( array(
 					'response_code' => 'failed',
 					'gateway'       => 'authnet',
-					'payment_id'       => $payment_id,
+					'payment_id'    => $payment_id,
 					'reason'        => urlencode( $message ),
 				), $purchase_page ) ) );
 			}
@@ -653,7 +653,7 @@ function my_tickets_authnet_process_payment() {
 			$redirect = mt_replace_http( esc_url_raw( add_query_arg( array(
 				'response_code' => 'failed',
 				'gateway'       => 'authnet',
-				'payment_id'       => $payment_id,
+				'payment_id'    => $payment_id,
 				'reason'        => urlencode( $message ),
 			), $purchase_page ) ) );
 		}
