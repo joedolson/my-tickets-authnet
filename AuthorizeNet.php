@@ -81,7 +81,6 @@ function mt_authorizenet_ipn() {
 		$redirect_url = false;
 		// all gateway data should be stored in the core My Tickets settings array.
 		$api          = $options['mt_gateways']['authorizenet']['api'];
-		$hash         = $options['mt_gateways']['authorizenet']['hash'];
 		// these all need to be set from Authorize.Net data.
 		$required_array = array( 'x_response_code', 'x_item_number', 'x_amount', 'x_email', 'x_first_name', 'x_last_name' );
 		foreach ( $required_array as $item ) {
@@ -182,7 +181,6 @@ function mt_setup_authnet( $gateways ) {
 		'fields' => array(
 			'api'  => __( 'API Login ID', 'my-tickets-authnet' ),
 			'key'  => __( 'Transaction Key', 'my-tickets-authnet' ),
-			'hash' => __( 'MD5 Hash Value', 'my-tickets-authnet' ),
 		),
 	);
 
