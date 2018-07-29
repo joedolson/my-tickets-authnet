@@ -25,11 +25,13 @@ New or updated translations are always appreciated. The translation files are in
 
 == Changelog ==
 
-= 1.1.4 =
+= 1.2.0 =
 
 * Improved currency handling
 * Constrain admin notices to My Tickets settings.
 * Add admin notice to require SSL.
+* Change payment method from DPM to AIM.
+* Switch to use SDK classes directly.
 * Update code style.
 
 = 1.1.3 =

@@ -17,7 +17,7 @@
  * License:     GPL-2.0+
  * License URI: http://www.gnu.org/license/gpl-2.0.txt
  * Domain Path: lang
- * Version:     1.1.4
+ * Version:     1.2.0
  */
 
 /*
@@ -39,7 +39,7 @@
 */
 
 global $amt_version;
-$amt_version = '1.1.4';
+$amt_version = '1.2.0';
 
 load_plugin_textdomain( 'my-tickets-authnet', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 
@@ -663,7 +663,7 @@ function my_tickets_authnet_process_payment() {
 			'price'          => $amount,
 			'currency'       => $options['mt_currency'],
 			'email'          => $payer_email,
-			'first_name'     => $f_name, // get from charge info
+			'first_name'     => $f_name, // get from charge info.
 			'last_name'      => $l_name, // get from charge info.
 			'status'         => $payment_status,
 			'purchase_id'    => $payment_id,
@@ -672,7 +672,7 @@ function my_tickets_authnet_process_payment() {
 
 		mt_handle_payment( 'VERIFIED', '200', $data, $_REQUEST );
 
-		// redirect back to our previous page with the added query variable
+		// redirect back to our previous page with the added query variable.
 		wp_redirect( $redirect );
 		exit;
 	}
