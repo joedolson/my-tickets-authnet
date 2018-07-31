@@ -221,7 +221,7 @@ add_action( 'mt_save_license', 'mta_save_license', 10, 2 );
  */
 function mta_save_license( $response, $post ) {
 	$field  = 'mta_license_key';
-	$name   =  __( 'My Tickets: Authorize.net', 'my-tickets-authnet' );
+	$name   = __( 'My Tickets: Authorize.net', 'my-tickets-authnet' );
 	$verify = mt_verify_key( $field, EDD_MTA_ITEM_NAME, EDD_MTA_STORE_URL );
 	$verify = "<li>$verify</li>";
 
@@ -263,7 +263,7 @@ function mta_requires_ssl() {
 		if ( 0 === stripos( home_url(), 'https' ) ) {
 			return;
 		} else {
-			echo "<div class='error'><p>" . __( 'Authorize.net requires an SSL Certificate. Please switch your site to HTTPS. <a href="https://websitesetup.org/http-to-https-wordpress/">How to switch WordPress to HTTPS</a>', 'my-tickets-authnet' ) . '</p></div>';
+			echo '<div class="error"><p>' . __( 'Authorize.net requires an SSL Certificate. Please switch your site to HTTPS. <a href="https://websitesetup.org/http-to-https-wordpress/">How to switch WordPress to HTTPS</a>', 'my-tickets-authnet' ) . '</p></div>';
 		}
 	}
 }
