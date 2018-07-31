@@ -152,8 +152,8 @@ function mt_authnet_messages( $message, $code ) {
 	if ( isset( $_GET['gateway'] ) && 'authorizenet' == $_GET['gateway'] ) {
 		$options = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
 		if ( 1 == $code || 'thanks' == $code ) {
-			$receipt_id     = $_GET['receipt_id'];
-			$transaction_id = $_GET['transaction_id'];
+			$receipt_id     = strip_tags( $_GET['receipt_id'] );
+			$transaction_id = strip_tags( $_GET['transaction_id'] );
 			$receipt        = esc_url( add_query_arg( array( 'receipt_id' => $receipt_id ), get_permalink( $options['mt_receipt_page'] ) ) );
 			// Translators: Transaction ID, URL to receipt.
 			return sprintf( __( 'Thank you for your purchase! Your Authorize.net transaction id is: #%1$s. <a href="%2$s">View your receipt</a>', 'my-tickets-authnet' ), $transaction_id, $receipt );
@@ -433,7 +433,7 @@ function my_tickets_authnet_process_payment() {
 			$transaction->setSandbox( false );
 		}
 
-		$payment_id  = $_POST['payment_id'];
+		$payment_id  = absint( $_POST['payment_id'] );
 		$payer_email = get_post_meta( $payment_id, '_email', true );
 		$paid        = get_post_meta( $payment_id, '_total_paid', true );
 		$payer_name  = get_the_title( $payment_id );
@@ -460,7 +460,7 @@ function my_tickets_authnet_process_payment() {
 		$transaction->exp_date    = strip_tags( trim( $_POST['expiry-month'] ) ) . '/' . strip_tags( trim( $_POST['expiry-year'] ) );
 		// Translators: Blog name.
 		$transaction->description = sprintf( __( '%s - Ticket Order', 'my-tickets' ), get_option( 'blogname' ) );
-		$name                     = $_POST['mt-card-name'];
+		$name                     = strip_tags( $_POST['mt-card-name'] );
 		$names                    = explode( ' ', $name );
 		$f_name                   = array_shift( $names );
 		$l_name                   = implode( ' ', $names );
@@ -483,12 +483,12 @@ function my_tickets_authnet_process_payment() {
 			// Get shipping adress information and map to MT format.
 			if ( isset( $_POST['mt_shipping_street'] ) ) {
 				$address = array(
-					'street'  => isset( $_POST['mt_shipping_street'] ) ? $_POST['mt_shipping_street'] : '',
-					'street2' => isset( $_POST['mt_shipping_street2'] ) ? $_POST['mt_shipping_street2'] : '',
-					'city'    => isset( $_POST['mt_shipping_city'] ) ? $_POST['mt_shipping_city'] : '',
-					'state'   => isset( $_POST['mt_shipping_state'] ) ? $_POST['mt_shipping_state'] : '',
-					'country' => isset( $_POST['mt_shipping_code'] ) ? $_POST['mt_shipping_code'] : '',
-					'code'    => isset( $_POST['mt_shipping_country'] ) ? $_POST['mt_shipping_country'] : '',
+					'street'  => isset( $_POST['mt_shipping_street'] ) ? strip_tags( $_POST['mt_shipping_street'] ) : '',
+					'street2' => isset( $_POST['mt_shipping_street2'] ) ? strip_tags( $_POST['mt_shipping_street2'] ) : '',
+					'city'    => isset( $_POST['mt_shipping_city'] ) ? strip_tags( $_POST['mt_shipping_city'] ) : '',
+					'state'   => isset( $_POST['mt_shipping_state'] ) ? strip_tags( $_POST['mt_shipping_state'] ) : '',
+					'country' => isset( $_POST['mt_shipping_code'] ) ? strip_tags( $_POST['mt_shipping_code'] ) : '',
+					'code'    => isset( $_POST['mt_shipping_country'] ) ? strip_tags( $_POST['mt_shipping_country'] ) : '',
 				);
 			}
 			if ( $response->approved ) {
