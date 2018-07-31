@@ -17,7 +17,7 @@ New or updated translations are always appreciated. The translation files are in
 
 == Installation ==
 
-1. Upload the `/mt-authnet/` directory into your WordPress plugins directory.
+1. Upload the `/my-tickets-authnet/` directory into your WordPress plugins directory.
 
 2. Activate the plugin on your WordPress plugins page
   
