@@ -67,105 +67,6 @@ if ( class_exists( 'EDD_SL_Plugin_Updater' ) ) { // prevent fatal error if doesn
 	) );
 }
 
-add_action( 'mt_receive_ipn', 'mt_authorizenet_ipn' );
-/**
- * Attaches functionality to the response received from authorize.net
- *
- * Requires definition of a request parameter unique to this gateway.
- * Valid response calls mt_handle_payment() and passes the $response value, $response_code, payment $data, and $_REQUEST
- */
-function mt_authorizenet_ipn() {
-	if ( isset( $_REQUEST['mt_authnet_ipn'] ) && 'true' == $_REQUEST['mt_authnet_ipn'] ) {
-		$options      = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
-		$options      = array_walk_recursive( $options, 'trim' ); // if somebody has spaces in settings.
-		$redirect_url = false;
-		// all gateway data should be stored in the core My Tickets settings array.
-		$api          = $options['mt_gateways']['authorizenet']['api'];
-		// these all need to be set from Authorize.Net data.
-		$required_array = array( 'x_response_code', 'x_item_number', 'x_amount', 'x_email', 'x_first_name', 'x_last_name' );
-		foreach ( $required_array as $item ) {
-			if ( ! isset( $_POST[ $item ] ) ) {
-				return false;
-			}
-		}
-
-		$payment_status   = mt_map_status( $_POST['x_response_code'] ); // map response to equivalent from Auth.net.
-		$item_number      = $_POST['x_item_number'];
-		$price            = $_POST['x_amount'];
-		$payer_email      = $_POST['x_email']; // must add to form.
-		$payer_first_name = $_POST['x_first_name'];
-		$payer_last_name  = $_POST['x_last_name'];
-		$phone            = $_POST['x_phone'];
-
-		// map AuthNet format of address to MT format.
-		$address = array(
-			'street'  => isset( $_POST['x_ship_to_address'] ) ? $_POST['x_ship_to_address'] : '',
-			'street2' => isset( $_POST['x_shipping_street2'] ) ? $_POST['x_shipping_street2'] : '',
-			'city'    => isset( $_POST['x_ship_to_city'] ) ? $_POST['x_ship_to_city'] : '',
-			'state'   => isset( $_POST['x_ship_to_state'] ) ? $_POST['x_ship_to_state'] : '',
-			'country' => isset( $_POST['x_ship_to_country'] ) ? $_POST['x_ship_to_country'] : '',
-			'code'    => isset( $_POST['x_ship_to_zip'] ) ? $_POST['x_ship_to_zip'] : ''
-		);
-
-		$billing = implode( ', ', array(
-			'address' => $_POST['x_address'],
-			'city'    => $_POST['x_city'],
-			'state'   => $_POST['x_state'],
-			'postal'  => $_POST['x_zip'],
-			'country' => $_POST['x_country'],
-		) );
-
-		// authorizeNet IPN data.
-		// This will only handle refunds; get refund data if sent. Model on Stripe.
-		// check that price paid matches expected total.
-		$value_match = mt_check_payment_amount( $price, $item_number );
-		if ( ( $ipn->isAuthorizeNet() || ( true == $allow ) ) && $value_match ) {
-			$receipt_id   = get_post_meta( $item_number, '_receipt', true );
-			$redirect_url = get_permalink( $options['mt_purchase_page'] );
-			if ( $ipn->approved ) {
-				$response     = 'VERIFIED';
-				$redirect_url = esc_url_raw( add_query_arg( array(
-						'response_code'  => 'thanks',
-						'transaction_id' => $ipn->transaction_id,
-						'receipt_id'     => $receipt_id,
-						'gateway'        => 'authorizenet',
-						'payment'        => $item_number,
-					), $redirect_url ) );
-				$txn_id       = $ipn->transaction_id;
-				// save data
-			} else {
-				$response     = 'FAILED';
-				$redirect_url = esc_url_raw( add_query_arg( array(
-						'response_code'        => $ipn->response_code,
-						'response_reason_text' => urlencode( $ipn->response_reason_text ),
-					), $redirect_url ) );
-				$txn_id       = false;
-			}
-			$response_code = '200';
-			$data          = array(
-				'transaction_id' => $txn_id,
-				'price'          => $price,
-				'currency'       => $options['mt_currency'],
-				'email'          => $payer_email,
-				'first_name'     => $payer_first_name,
-				'last_name'      => $payer_last_name,
-				'status'         => $payment_status,
-				'purchase_id'    => $item_number,
-				'shipping'       => $address,
-				'billing'        => $billing,
-				'phone'          => $phone,
-			);
-			// use this filter to add custom data from your custom form fields.
-			$data = apply_filters( 'mta_transaction_data', $data, $_POST );
-			mt_handle_payment( $response, $response_code, $data, $_REQUEST );
-		} else {
-			wp_die( __( 'That transaction was not handled by Authorize.net.', 'my-tickets-authnet' ) );
-		}
-	}
-
-	return;
-}
-
 add_filter( 'mt_setup_gateways', 'mt_setup_authnet', 10, 1 );
 /**
  * Setup the Authorize.net gateway settings.
@@ -265,34 +166,6 @@ function mt_authnet_messages( $message, $code ) {
 	return $message;
 }
 
-/*
- * Maps statuses returned by Authorize.net to the My Tickets status values
- *
- * @param int $status original status.
- *
- * @return string
-*/
-function mt_map_status( $status ) {
-	switch ( $status ) {
-		case 1:
-			$response = 'Completed';
-			break;
-		case 2:
-			$response = 'Failed';
-			break;
-		case 3:
-			$response = 'Failed';
-			break;
-		case 4:
-			$response = 'Pending';
-			break;
-		default:
-			$response = 'Completed';
-	}
-
-	return $response;
-}
-
 add_filter( 'mt_gateway', 'mt_gateway_authorizenet', 10, 3 );
 /**
  * Generates purchase form to be displayed under shopping cart confirmation.
@@ -305,17 +178,14 @@ add_filter( 'mt_gateway', 'mt_gateway_authorizenet', 10, 3 );
  */
 function mt_gateway_authorizenet( $form, $gateway, $args ) {
 	if ( 'authorizenet' == $gateway ) {
-		$options        = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
-		$url            = mt_replace_http( add_query_arg( 'mt_authnet_ipn', 'true', trailingslashit( home_url() ) ) );
-		$payment_id     = $args['payment'];
-		$amount         = $args['total'];
-		$handling       = ( isset( $options['mt_handling'] ) ) ? $options['mt_handling'] : 0;
-		$shipping       = ( 'postal' == $args['method'] ) ? $options['mt_shipping'] : 0;
-		$total          = ( $amount + $handling + $shipping );
-		$purchaser      = get_the_title( $payment_id );
-		$form           = mt_authnet_form( $url, $payment_id, $total, $args );
-
-		$form .= apply_filters( 'mt_authnet_form', '', $gateway, $args );
+		$options    = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
+		$payment_id = $args['payment'];
+		$amount     = $args['total'];
+		$handling   = ( isset( $options['mt_handling'] ) ) ? $options['mt_handling'] : 0;
+		$shipping   = ( 'postal' == $args['method'] ) ? $options['mt_shipping'] : 0;
+		$total      = ( $amount + $handling + $shipping );
+		$form       = mt_authnet_form( $payment_id, $total, $args );
+		$form      .= apply_filters( 'mt_authnet_form', '', $gateway, $args );
 	}
 
 	return $form;
@@ -441,14 +311,13 @@ function mt_authnet_currencies( $currencies ) {
 /**
  * Set up form for making a Authorize.net payment via AIM.
  *
- * @param string  $url $url to send query to. (Unused)
  * @param integer $payment_id ID for this payment.
  * @param float   $total Total amount of payment.
  * @param array   $args Payment arguments.
  *
  * @return string.
  */
-function mt_authnet_form( $url, $payment_id, $total, $args ) {
+function mt_authnet_form( $payment_id, $total, $args ) {
 	$options = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
 	$year    = date( 'Y' );
 	$years   = '';
@@ -608,8 +477,9 @@ function my_tickets_authnet_process_payment() {
 		// attempt to charge the customer's card.
 		try {
 			// Charge the card using Authorize.net.
-			$response   = $transaction->authorizeAndCapture();
-			$receipt_id = get_post_meta( $payment_id, '_receipt', true ); 
+			$response       = $transaction->authorizeAndCapture();
+			$receipt_id     = get_post_meta( $payment_id, '_receipt', true );
+			$transaction_id = $response->transaction_id;
 			// Get shipping adress information and map to MT format.
 			if ( isset( $_POST['mt_shipping_street'] ) ) {
 				$address = array(
@@ -660,7 +530,7 @@ function my_tickets_authnet_process_payment() {
 
 		$data  = array(
 			'transaction_id' => $transaction_id,
-			'price'          => $amount,
+			'price'          => $paid,
 			'currency'       => $options['mt_currency'],
 			'email'          => $payer_email,
 			'first_name'     => $f_name, // get from charge info.
@@ -673,7 +543,7 @@ function my_tickets_authnet_process_payment() {
 		mt_handle_payment( 'VERIFIED', '200', $data, $_REQUEST );
 
 		// redirect back to our previous page with the added query variable.
-		wp_redirect( $redirect );
+		wp_safe_redirect( $redirect );
 		exit;
 	}
 }
