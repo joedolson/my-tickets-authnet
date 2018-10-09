@@ -244,7 +244,7 @@ function mta_licensed() {
 	global $current_screen;
 	if ( stripos( $current_screen->id, 'my-tickets' ) ) {
 		// Translators: Settings page URL.
-		$message = sprintf( __( "Please <a href='%s'>enter your My Tickets: Authorize.net license key</a> to be eligible for support.", 'my-tickets-authnet' ), admin_url( 'admin.php?page=my-tickets' ) );
+		$message = sprintf( __( "Please <a href='%s'>enter your My Tickets: Authorize.net license key</a> to be eligible for support.", 'my-tickets-authnet' ), admin_url( 'admin.php?page=my-tickets#mta_license_key' ) );
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		} else {
