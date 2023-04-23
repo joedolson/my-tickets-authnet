@@ -438,9 +438,7 @@ function my_tickets_authnet_process_payment() {
 		$paid        = get_post_meta( $payment_id, '_total_paid', true );
 		$payer_name  = get_the_title( $payment_id );
 		$names       = explode( ' ', $payer_name );
-		$first_name  = array_shift( $names );
-		$last_name   = implode( ' ', $names );
-		$passed      = $_POST['amount'];
+		$passed      = sanitize_text_field( $_POST['amount'] );
 		$address     = array();
 		// compare amounts from payment and from passage.
 		if ( $paid != $passed ) {
