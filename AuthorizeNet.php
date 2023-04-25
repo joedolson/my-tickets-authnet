@@ -17,7 +17,7 @@
  * License:     GPL-2.0+
  * License URI: http://www.gnu.org/license/gpl-2.0.txt
  * Domain Path: lang
- * Version:     1.2.0
+ * Version:     1.2.1
  */
 
 /*
@@ -39,7 +39,7 @@
 */
 
 global $amt_version;
-$amt_version = '1.2.0';
+$amt_version = '1.2.1';
 
 load_plugin_textdomain( 'my-tickets-authnet', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 

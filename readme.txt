@@ -3,7 +3,7 @@ Contributors: joedolson
 Donate link: http://www.joedolson.com/my-tickets/add-ons/
 Tags: my-tickets, authorize.net
 Requires at least: 4.4
-Tested up to: 4.9
+Tested up to: 6.2
 Requires PHP: 5.3
 Stable tag: trunk
 
@@ -24,6 +24,14 @@ New or updated translations are always appreciated. The translation files are in
 3. Go to My Tickets > Payment Settings and configure the Authorize.net payment gateway.
 
 == Changelog ==
+
+= 1.2.1 =
+
+* Bug fix: Link directly to license field.
+* Bug fix: Correct directory name in instructions.
+* Bug fix: Update EDD plugin updater class.
+* Update copyright.
+* Remove unused variables & sanitize early.
 
 = 1.2.0 =
 
