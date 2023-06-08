@@ -181,7 +181,7 @@ function mt_gateway_authorizenet( $form, $gateway, $args ) {
 		$options    = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
 		$payment_id = $args['payment'];
 		$amount     = $args['total'];
-		$handling   = ( isset( $options['mt_handling'] ) ) ? $options['mt_handling'] : 0;
+		$handling   = mt_get_cart_handling( $options, $gateway );
 		$shipping   = ( 'postal' == $args['method'] ) ? $options['mt_shipping'] : 0;
 		$total      = ( $amount + $handling + $shipping );
 		$form       = mt_authnet_form( $payment_id, $total, $args );
