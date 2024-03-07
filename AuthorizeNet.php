@@ -45,8 +45,6 @@ load_plugin_textdomain( 'my-tickets-authnet', false, dirname( plugin_basename( _
 
 // The URL of the site with EDD installed.
 define( 'EDD_MTA_STORE_URL', 'https://www.joedolson.com' );
-// The title of your product in EDD and should match the download title in EDD exactly.
-define( 'EDD_MTA_ITEM_NAME', 'My Tickets: Authorize.net' );
 
 if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 	// load our custom updater if it doesn't already exist.
@@ -61,7 +59,7 @@ if ( class_exists( 'EDD_SL_Plugin_Updater' ) ) { // prevent fatal error if doesn
 	$edd_updater = new EDD_SL_Plugin_Updater( EDD_MTA_STORE_URL, __FILE__, array(
 		'version'   => $amt_version,        // current version number
 		'license'   => $license_key,        // license key (use above to retrieve from DB).
-		'item_name' => EDD_MTA_ITEM_NAME,   // name of this plugin.
+		'item_id'   => 5733,   // name of this plugin.
 		'author'    => 'Joe Dolson',        // author of this plugin.
 		'url'       => home_url(),
 	) );
@@ -221,8 +219,7 @@ add_action( 'mt_save_license', 'mta_save_license', 10, 2 );
  */
 function mta_save_license( $response, $post ) {
 	$field  = 'mta_license_key';
-	$name   = __( 'My Tickets: Authorize.net', 'my-tickets-authnet' );
-	$verify = mt_verify_key( $field, EDD_MTA_ITEM_NAME, EDD_MTA_STORE_URL );
+	$verify = mt_verify_key( $field, 5733, EDD_MTA_STORE_URL );
 	$verify = "<li>$verify</li>";
 
 	return $response . $verify;
