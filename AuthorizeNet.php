@@ -57,11 +57,11 @@ $license_key = trim( get_option( 'mta_license_key' ) );
 
 if ( class_exists( 'EDD_SL_Plugin_Updater' ) ) { // prevent fatal error if doesn't exist for some reason.
 	$edd_updater = new EDD_SL_Plugin_Updater( EDD_MTA_STORE_URL, __FILE__, array(
-		'version'   => $amt_version,        // current version number
-		'license'   => $license_key,        // license key (use above to retrieve from DB).
-		'item_id'   => 5733,   // name of this plugin.
-		'author'    => 'Joe Dolson',        // author of this plugin.
-		'url'       => home_url(),
+		'version' => $amt_version,        // current version number
+		'license' => $license_key,        // license key (use above to retrieve from DB).
+		'item_id' => 5733,   // name of this plugin.
+		'author'  => 'Joe Dolson',        // author of this plugin.
+		'url'     => home_url(),
 	) );
 }
 
