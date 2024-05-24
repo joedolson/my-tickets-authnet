@@ -2,7 +2,7 @@
 Contributors: joedolson
 Donate link: http://www.joedolson.com/my-tickets/add-ons/
 Tags: my-tickets, authorize.net
-Requires at least: 4.4
+Requires at least: 4.9
 Tested up to: 6.2
 Requires PHP: 5.3
 Stable tag: trunk
