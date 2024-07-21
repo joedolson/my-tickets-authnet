@@ -552,3 +552,14 @@ function mta_http_api_curl( $handle ) {
 	curl_setopt( $handle, CURLOPT_SSLVERSION, 6 );
 }
 add_action( 'http_api_curl', 'mta_http_api_curl' );
+
+add_action( 'wp_enqueue_scripts', 'mta_public_enqueue_scripts' );
+/**
+ * Enqueue public-facing scripts and styles. Localize scripts.
+ */
+function mta_public_enqueue_scripts() {
+	global $amt_version;
+	$payments_url = plugins_url( 'js/jquery.payment.js', __FILE__ );
+	wp_enqueue_script( 'mt.payments', $payments_url, array( 'jquery' ), $amt_version );
+	wp_enqueue_script( 'mta', plugins_url( 'js/mta.js'), array( 'mt.payments' ), $amt_version );
+}
