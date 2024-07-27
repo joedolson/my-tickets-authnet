@@ -28,6 +28,7 @@ New or updated translations are always appreciated. The translation files are in
 = 1.2.2 =
 
 * Bug fix: Support cart-specific handling fees.
+* Bug fix: Incorrectly queried array to get address info.
 * Change: Use item_id instead of item_name for license queries.
 * Change: Add payments.js to this plugin instead of getting from core.
 
