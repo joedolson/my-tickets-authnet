@@ -3,8 +3,8 @@ Contributors: joedolson
 Donate link: http://www.joedolson.com/my-tickets/add-ons/
 Tags: my-tickets, authorize.net
 Requires at least: 4.9
-Tested up to: 6.2
-Requires PHP: 5.3
+Tested up to: 6.6
+Requires PHP: 7.0
 Stable tag: trunk
 
 Support for Authorize.net in My Tickets.
@@ -24,6 +24,12 @@ New or updated translations are always appreciated. The translation files are in
 3. Go to My Tickets > Payment Settings and configure the Authorize.net payment gateway.
 
 == Changelog ==
+
+= 1.2.2 =
+
+* Bug fix: Support cart-specific handling fees.
+* Change: Use item_id instead of item_name for license queries.
+* Change: Add payments.js to this plugin instead of getting from core.
 
 = 1.2.1 =
 

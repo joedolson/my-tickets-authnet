@@ -4,7 +4,7 @@
  *
  * @package     My Tickets: Authorize.net
  * @author      Joe Dolson
- * @copyright   2014-2023 Joe Dolson
+ * @copyright   2014-2024 Joe Dolson
  * @license     GPL-2.0+
  *
  * @wordpress-plugin
@@ -17,11 +17,11 @@
  * License:     GPL-2.0+
  * License URI: http://www.gnu.org/license/gpl-2.0.txt
  * Domain Path: lang
- * Version:     1.2.1
+ * Version:     1.2.2
  */
 
 /*
-	Copyright 2014-2023  Joe Dolson (email : joe@joedolson.com)
+	Copyright 2014-2024  Joe Dolson (email : joe@joedolson.com)
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@
 */
 
 global $amt_version;
-$amt_version = '1.2.1';
+$amt_version = '1.2.2';
 
 load_plugin_textdomain( 'my-tickets-authnet', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 
