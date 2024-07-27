@@ -331,71 +331,75 @@ function mt_authnet_form( $payment_id, $total, $args ) {
 		<div class='card section'>
 		<fieldset>
 			<legend>" . __( 'Credit Card Details', 'my-tickets-authnet' ) . "</legend>
-			<div class='form-row'>
-				<label for='mt-card-name'>" . __( 'Name on card', 'my-tickets-authnet' ) . '</label>
-				<input type="text" id="mt-card-name" size="20" autocomplete="cc-name" class="card-name" name="mt-card-name" />
-			</div>
-			<div class="form-row">
-				<label for="mt-cc-number">' . __( 'Credit Card Number', 'my-tickets-authnet' ) . '</label>
-				<input type="text" id="mt-cc-number" size="20" autocomplete="cc-number" class="card-number cc-num" name="card-number" />
-			</div>
-			<div class="form-row">
-				<label for="cvc">' . __( 'CVC', 'my-tickets-authnet' ) . '</label>
-				<input type="text" size="4" autocomplete="off" class="card-cvc cc-cvc" name="card-cvc" id="cvc" />
-			</div>
-			<div class="form-row">
-			<fieldset>
-				<legend>' . __( 'Expiration (MM/YY)', 'my-tickets-authnet' ) . '</legend>
-				<label for="expiry-month" class="screen-reader-text">' . __('Expiration month', 'my-tickets-authnet') . '</label>
-				<select class="card-expiry-month" id="expiry-month" name="expiry-month">
-					<option value="01">01</option>
-					<option value="02">02</option>
-					<option value="03">03</option>
-					<option value="04">04</option>
-					<option value="05">05</option>
-					<option value="06">06</option>
-					<option value="07">07</option>
-					<option value="08">08</option>
-					<option value="09">09</option>
-					<option value="10">10</option>
-					<option value="11">11</option>
-					<option value="12">12</option>
-				</select>
-				<span> / </span>
-				<label for="expiry-year" class="screen-reader-text">' . __( 'Expiration year', 'my-tickets-authnet' ) . '</label>
-				<select class="card-expiry-year" id="expiry-year" name="expiry-year">
-					' . $years . '
-				</select>
-			</fieldset>
+			<div class='card fields'>
+				<div class='form-row'>
+					<label for='mt-card-name'>" . __( 'Name on card', 'my-tickets-authnet' ) . '</label>
+					<input type="text" id="mt-card-name" size="20" autocomplete="cc-name" class="card-name" name="mt-card-name" />
+				</div>
+				<div class="form-row">
+					<label for="mt-cc-number">' . __( 'Credit Card Number', 'my-tickets-authnet' ) . '</label>
+					<input type="text" id="mt-cc-number" size="20" autocomplete="cc-number" class="card-number cc-num" name="card-number" />
+				</div>
+				<div class="form-row">
+					<label for="cvc">' . __( 'CVC', 'my-tickets-authnet' ) . '</label>
+					<input type="text" size="4" autocomplete="off" class="card-cvc cc-cvc" name="card-cvc" id="cvc" />
+				</div>
+				<div class="form-row">
+				<fieldset>
+					<legend>' . __( 'Expiration (MM/YY)', 'my-tickets-authnet' ) . '</legend>
+					<label for="expiry-month" class="screen-reader-text">' . __('Expiration month', 'my-tickets-authnet') . '</label>
+					<select class="card-expiry-month" id="expiry-month" name="expiry-month">
+						<option value="01">01</option>
+						<option value="02">02</option>
+						<option value="03">03</option>
+						<option value="04">04</option>
+						<option value="05">05</option>
+						<option value="06">06</option>
+						<option value="07">07</option>
+						<option value="08">08</option>
+						<option value="09">09</option>
+						<option value="10">10</option>
+						<option value="11">11</option>
+						<option value="12">12</option>
+					</select>
+					<span> / </span>
+					<label for="expiry-year" class="screen-reader-text">' . __( 'Expiration year', 'my-tickets-authnet' ) . '</label>
+					<select class="card-expiry-year" id="expiry-year" name="expiry-year">
+						' . $years . '
+					</select>
+				</fieldset>
+				</div>
 			</div>
 		</fieldset>
 		</div>
 		<div class="address section">
 		<fieldset>
 		<legend>' . __( 'Billing Address', 'my-tickets-authnet' ) . '</legend>
-			<div class="form-row">
-				<label for="address1">' . __( 'Address (1)', 'my-tickets-authnet' ) . '</label>
-				<input type="text" id="address1" name="card_address" class="card-address" />
-			</div>
-			<div class="form-row">
-				<label for="address2">' . __( 'Address (2)', 'my-tickets-authnet' ) . '</label>
-				<input type="text" id="address2" name="card_address_2" class="card-address-2" />
-			</div>
-			<div class="form-row">
-				<label for="card_city">' . __( 'City', 'my-tickets-authnet' ) . '</label>
-				<input type="text" id="card_city" name="card_city" class="card-city" />
-			</div>
-			<div class="form-row">
-				<label for="card_zip">' . __( 'Zip / Postal Code', 'my-tickets-authnet' ) . '</label>
-				<input type="text" id="card_zip" name="card_zip" class="card-zip" />
-			</div>
-			<div class="form-row">
-				<label for="card_country">' . __( 'Country', 'my-tickets-authnet' ) . '</label>
-				<input type="text" id="card_country" name="card_country" class="card-country" />
-			</div>
-			<div class="form-row">
-				<label for="card_state">' . __( 'State', 'my-tickets-authnet' ) . '</label>
-				<input type="text" id="card_state" name="card_state" class="card-state" />
+			<div class="card fields">
+				<div class="form-row">
+					<label for="address1">' . __( 'Address (1)', 'my-tickets-authnet' ) . '</label>
+					<input type="text" id="address1" name="card_address" class="card-address" />
+				</div>
+				<div class="form-row">
+					<label for="address2">' . __( 'Address (2)', 'my-tickets-authnet' ) . '</label>
+					<input type="text" id="address2" name="card_address_2" class="card-address-2" />
+				</div>
+				<div class="form-row">
+					<label for="card_city">' . __( 'City', 'my-tickets-authnet' ) . '</label>
+					<input type="text" id="card_city" name="card_city" class="card-city" />
+				</div>
+				<div class="form-row">
+					<label for="card_zip">' . __( 'Zip / Postal Code', 'my-tickets-authnet' ) . '</label>
+					<input type="text" id="card_zip" name="card_zip" class="card-zip" />
+				</div>
+				<div class="form-row">
+					<label for="card_country">' . __( 'Country', 'my-tickets-authnet' ) . '</label>
+					<input type="text" id="card_country" name="card_country" class="card-country" />
+				</div>
+				<div class="form-row">
+					<label for="card_state">' . __( 'State', 'my-tickets-authnet' ) . '</label>
+					<input type="text" id="card_state" name="card_state" class="card-state" />
+				</div>
 			</div>
 		</fieldset>
 		</div>';
@@ -565,4 +569,5 @@ function mta_public_enqueue_scripts() {
 	$payments_url = plugins_url( 'js/jquery.payment.js', __FILE__ );
 	wp_enqueue_script( 'mt.payments', $payments_url, array( 'jquery' ), $amt_version );
 	wp_enqueue_script( 'mta', plugins_url( 'js/mta.js', __FILE__ ), array( 'mt.payments' ), $amt_version, true );
+	wp_enqueue_style( 'mta.css', plugins_url( 'css/style.css', __FILE__ ), array(), $amt_version );
 }

@@ -1,0 +1,85 @@
+#my-tickets-authnet-payment-form .section {
+	background: rgba( 0, 0, 0, .04 );
+	padding: 1rem;
+	margin-bottom: 1.5rem;
+}
+
+#my-tickets-authnet-payment-form .fields {
+	display: grid;
+	grid-template-columns: repeat( 2, 1fr );
+	gap: 20px;
+}
+
+#my-tickets-authnet-payment-form fieldset {
+	padding: 0;
+	margin: 0;
+	border: none;
+}
+
+#my-tickets-authnet-payment-form legend {
+	padding: 0;
+	margin: 0;
+	font-weight: 700;
+}
+
+#my-tickets-authnet-payment-form label {
+	display: block;
+}
+
+#my-tickets-authnet-payment-form input[type="text"] {
+	width: 100%;
+}
+
+#my-tickets-authnet-payment-form div:has(.cc-num)::after {
+	font-family: Helvetica, Arial;
+	font-weight: 600;
+	color: var(--mt-success-color);
+	background: #fff;
+	font-size: clamp( 14px, .66rem, 18px );
+	text-transform: uppercase;
+	padding: 6px;
+}
+
+#my-tickets-authnet-payment-form div.form-row:has(.cc-num.visa)::after {
+	content: "VISA";
+}
+
+#my-tickets-authnet-payment-form div.form-row:has(.cc-num.mastercard)::after {
+	content: "MasterCard";
+}
+
+#my-tickets-authnet-payment-form div.form-row:has(.cc-num.visaelectron)::after {
+	content: "VISA Electron";
+}
+
+#my-tickets-authnet-payment-form div.form-row:has(.cc-num.maestro)::after {
+	content: "Maestro";
+}
+
+#my-tickets-authnet-payment-form div.form-row:has(.cc-num.forbrugsforeningen)::after {
+	content: "Forbrugsforeningen";
+}
+
+#my-tickets-authnet-payment-form div.form-row:has(.cc-num.dankort)::after {
+	content: "Dankort";
+}
+
+#my-tickets-authnet-payment-form div.form-row:has(.cc-num.amex)::after {
+	content: "American Express";
+}
+
+#my-tickets-authnet-payment-form div.form-row:has(.cc-num.dinersclub)::after {
+	content: "Diners Club";
+}
+
+#my-tickets-authnet-payment-form div.form-row:has(.cc-num.discover)::after {
+	content: "Discover";
+}
+
+#my-tickets-authnet-payment-form div.form-row:has(.cc-num.unionpay)::after {
+	content: "UnionPay";
+}
+
+#my-tickets-authnet-payment-form div.form-row:has(.cc-num.jcb)::after {
+	content: "JCB Prepaid";
+}
