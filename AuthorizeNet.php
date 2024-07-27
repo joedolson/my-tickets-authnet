@@ -559,7 +559,10 @@ add_action( 'wp_enqueue_scripts', 'mta_public_enqueue_scripts' );
  */
 function mta_public_enqueue_scripts() {
 	global $amt_version;
+	if ( SCRIPT_DEBUG ) {
+		$amt_version = $amt_version . '-' . wp_rand( 10000, 99999 );
+	}
 	$payments_url = plugins_url( 'js/jquery.payment.js', __FILE__ );
 	wp_enqueue_script( 'mt.payments', $payments_url, array( 'jquery' ), $amt_version );
-	wp_enqueue_script( 'mta', plugins_url( 'js/mta.js'), array( 'mt.payments' ), $amt_version );
+	wp_enqueue_script( 'mta', plugins_url( 'js/mta.js', __FILE__ ), array( 'mt.payments' ), $amt_version, true );
 }
