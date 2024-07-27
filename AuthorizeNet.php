@@ -465,11 +465,14 @@ function my_tickets_authnet_process_payment() {
 		$l_name                   = implode( ' ', $names );
 		$transaction->first_name  = $f_name;
 		$transaction->last_name   = $l_name;
-		$transaction->address     = $card_info['card_address'] . ' ' . $card_info['card_address_2'];
-		$transaction->city        = $card_info['card_city'];
-		$transaction->country     = $card_info['card_country'];
-		$transaction->state       = $card_info['card_state'];
-		$transaction->zip         = $card_info['card_zip'];
+		$address1                 = isset( $_POST['card_address'] ) ? sanitize_text_field( $_POST['card_address'] ) : '';
+		$address2                 = isset( $_POST['card_address_2'] ) ? sanitize_text_field( $_POST['card_address_2'] ) : '';
+
+		$transaction->address     = $address1 . ' ' . $address2;
+		$transaction->city        = isset( $_POST['card_city'] ) ? sanitize_text_field( $_POST['card_city'] ) : '';
+		$transaction->country     = isset( $_POST['card_country'] ) ? sanitize_text_field( $_POST['card_country'] ) : '';
+		$transaction->state       = isset( $_POST['card_state'] ) ? sanitize_text_field( $_POST['card_state'] ) : '';
+		$transaction->zip         = isset( $_POST['card_zip'] ) ? sanitize_text_field( $_POST['card_zip'] ) : '';
 		$transaction->customer_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
 		$transaction->email       = $payer_email;
 		$transaction->invoice_num = $payment_id;
