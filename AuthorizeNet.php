@@ -419,7 +419,6 @@ add_action( 'init', 'my_tickets_authnet_process_payment' );
  */
 function my_tickets_authnet_process_payment() {
 	if ( isset( $_POST['_mt_action']) && 'authnet' == $_POST['_mt_action'] && wp_verify_nonce( $_POST['_wp_authnet_nonce'], 'my-tickets-authnet' ) ) {
-
 		// Call this only when needed.
 		require_once( dirname( __FILE__ ) . '/includes/anet_php_sdk/AuthorizeNet.php' );
 
