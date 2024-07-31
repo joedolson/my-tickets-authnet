@@ -18,6 +18,7 @@
  * License URI: http://www.gnu.org/license/gpl-2.0.txt
  * Domain Path: lang
  * Version:     1.2.2
+ * Requires Plugins: my-tickets
  */
 
 /*
