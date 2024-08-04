@@ -1,6 +1,6 @@
 === My Tickets: Authorize.net ===
 Contributors: joedolson
-Donate link: http://www.joedolson.com/my-tickets/add-ons/
+Donate link: https://www.joedolson.com/my-tickets/add-ons/
 Tags: my-tickets, authorize.net
 Requires at least: 4.9
 Tested up to: 6.6
