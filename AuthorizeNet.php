@@ -11,7 +11,7 @@
  * Plugin Name: My Tickets: Authorize.net
  * Plugin URI: https://www.joedolson.com/my-tickets/add-ons/
  * Description: Add support for the Authorize.net payment gateway to My Tickets.
- * Author: Joseph C Dolson
+ * Author: Joe Dolson
  * Author URI: https://www.joedolson.com
  * Text Domain: my-tickets-authnet
  * License:     GPL-2.0+
