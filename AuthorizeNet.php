@@ -541,6 +541,8 @@ function my_tickets_authnet_process_payment() {
 			'purchase_id'    => $payment_id,
 			'shipping'       => $address,
 		);
+		// Remove cc number from log data.
+		$_REQUEST['card-number'] = '';
 
 		mt_handle_payment( 'VERIFIED', '200', $data, $_REQUEST );
 
