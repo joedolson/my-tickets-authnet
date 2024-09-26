@@ -121,6 +121,89 @@ function mt_authnet_shipping_fields( $form, $gateway ) {
 	return $form;
 }
 
+register_activation_hook( __FILE__, 'mta_install' );
+
+/**
+ * Install My Tickets Authorize.net
+ */
+function mta_install() {
+	//wp_schedule_event( time() + 300, 'five_minutes', 'mta_authnet_cron' );
+}
+
+add_action( 'mta_authnet_cron', 'mta_process_cron' );
+/**
+ * Cron job to process authnet updates.
+ */
+function mta_process_cron() {
+	$args       = array(
+		'post_type'   => 'mt-payments',
+		'numberposts' => 50,
+		'fields'      => 'ids',
+		'post_status' => 'any',
+		'meta_query'  => array(
+			array(
+				'key'     => '_data_cleaned',
+				'compare' => 'NOT EXISTS',
+			),
+		),
+	);
+	$items      = get_posts( $args );
+	$data_found = ( count( $items ) > 0 ) ? true : false;
+	if ( ! $data_found ) {
+		wp_clear_scheduled_hook( 'mta_authnet_cron' );
+	}
+	if ( $items ) {
+		foreach ( $items as $post_id ) {
+			mta_remove_card_data( $post_id );
+		}
+	}
+}
+
+/**
+ * Add custom cron interval for 5 minutes.
+ *
+ * @param array $schedules Default array of schedules.
+ *
+ * @return array
+ */
+function mta_add_cron_interval( $schedules ) { 
+    $schedules['five_minutes'] = array(
+        'interval' => 300,
+        'display'  => esc_html__( 'Every Five Minutes' ), );
+    return $schedules;
+}
+add_filter( 'cron_schedules', 'mta_add_cron_interval' );
+
+/**
+ * Error logging stored provided credit cards. This routine removes them from the database.
+ *
+ * @param int $post_id Post ID.
+ */
+function mta_remove_card_data( $post_id ) {
+	$logs = get_post_meta( $post_id, '_error_log' );
+	foreach ( $logs as $log ) {
+		$continue = false;
+		$data     = $log[3];
+		if ( is_array( $data ) ) {
+			// If record has a card number set, remove it.
+			if ( isset( $data['card-number'] ) && ! empty( $data['card-number'] ) ) {
+				$data['card-number'] = '';
+				$continue            = true;
+			}
+			if ( isset( $data['card-cvc'] ) && ! empty( $data['card-cvc'] ) ) {
+				$data['card-cvc'] = '';
+				$continue         = true;
+			}
+			if ( $continue ) {
+				$prev_log            = $log;
+				$log[3]              = $data;
+				update_post_meta( $post_id, '_error_log', $log, $prev_log );
+			}
+		}
+	}
+	update_post_meta( $post_id, '_data_cleaned', 'true' );
+}
+
 add_filter( 'mt_format_transaction', 'mt_authnet_transaction', 10, 2 );
 /**
  * Customize transaction data from gateway.
@@ -454,12 +537,12 @@ function my_tickets_authnet_process_payment() {
 		}
 		// Set transaction values.
 		$transaction->amount      = $paid;
-		$transaction->card_num    = strip_tags( trim( $_POST['card-number'] ) );
-		$transaction->card_code   = strip_tags( trim( $_POST['card-cvc'] ) );
-		$transaction->exp_date    = strip_tags( trim( $_POST['expiry-month'] ) ) . '/' . strip_tags( trim( $_POST['expiry-year'] ) );
+		$transaction->card_num    = sanitize_text_field( trim( $_POST['card-number'] ) );
+		$transaction->card_code   = sanitize_text_field( trim( $_POST['card-cvc'] ) );
+		$transaction->exp_date    = sanitize_text_field( trim( $_POST['expiry-month'] ) ) . '/' . sanitize_text_field( trim( $_POST['expiry-year'] ) );
 		// Translators: Blog name.
 		$transaction->description = sprintf( __( '%s - Ticket Order', 'my-tickets' ), get_option( 'blogname' ) );
-		$name                     = strip_tags( $_POST['mt-card-name'] );
+		$name                     = sanitize_text_field( $_POST['mt-card-name'] );
 		$names                    = explode( ' ', $name );
 		$f_name                   = array_shift( $names );
 		$l_name                   = implode( ' ', $names );
@@ -543,6 +626,7 @@ function my_tickets_authnet_process_payment() {
 		);
 		// Remove cc number from log data.
 		$_REQUEST['card-number'] = '';
+		$_REQUEST['card-cvc']    = '';
 
 		mt_handle_payment( 'VERIFIED', '200', $data, $_REQUEST );
 
