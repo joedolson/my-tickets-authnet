@@ -42,7 +42,13 @@
 global $amt_version;
 $amt_version = '1.2.2';
 
-load_plugin_textdomain( 'my-tickets-authnet', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
+add_action( 'init', 'mta_load_textdomain' );
+/**
+ * Load internationalization.
+ */
+function mta_load_textdomain() {
+	load_plugin_textdomain( 'my-tickets-authnet', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
+}
 
 // The URL of the site with EDD installed.
 define( 'EDD_MTA_STORE_URL', 'https://www.joedolson.com' );
