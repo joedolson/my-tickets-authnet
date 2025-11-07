@@ -3,7 +3,7 @@ Contributors: joedolson
 Donate link: https://www.joedolson.com/my-tickets/add-ons/
 Tags: my-tickets, authorize.net
 Requires at least: 4.9
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.0
 Stable tag: trunk
 
@@ -13,14 +13,14 @@ Support for Authorize.net in My Tickets.
 
 Support for Authorize.net payment gateway transactions using My Tickets.
 
-New or updated translations are always appreciated. The translation files are included in the download. 
+New or updated translations are always appreciated. The translation files are included in the download.
 
 == Installation ==
 
 1. Upload the `/my-tickets-authnet/` directory into your WordPress plugins directory.
 
 2. Activate the plugin on your WordPress plugins page
-  
+
 3. Go to My Tickets > Payment Settings and configure the Authorize.net payment gateway.
 
 == Changelog ==
@@ -52,7 +52,7 @@ New or updated translations are always appreciated. The translation files are in
 = 1.1.3 =
 
 * Bug fix: Precautionary check for class existence
-* Bug fix: check class names in Authorize.net 
+* Bug fix: check class names in Authorize.net
 
 = 1.1.2 =
 
@@ -78,9 +78,9 @@ New or updated translations are always appreciated. The translation files are in
 
 * Security fix: XSS related to add_query_arg
 
-= 1.0.1 = 
+= 1.0.1 =
 
-* Add support for handling fee. 
+* Add support for handling fee.
 * Avoid conflict with other plug-ins using Auth.net
 
 = 1.0.0 =
