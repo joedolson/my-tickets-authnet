@@ -133,7 +133,7 @@ register_activation_hook( __FILE__, 'mta_install' );
  * Install My Tickets Authorize.net
  */
 function mta_install() {
-	//wp_schedule_event( time() + 300, 'five_minutes', 'mta_authnet_cron' );
+	wp_schedule_event( time() + 300, 'five_minutes', 'mta_authnet_cron' );
 }
 
 add_action( 'mta_authnet_cron', 'mta_process_cron' );
@@ -172,7 +172,7 @@ function mta_process_cron() {
  *
  * @return array
  */
-function mta_add_cron_interval( $schedules ) { 
+function mta_add_cron_interval( $schedules ) {
     $schedules['five_minutes'] = array(
         'interval' => 300,
         'display'  => esc_html__( 'Every Five Minutes' ), );
@@ -189,7 +189,7 @@ function mta_remove_card_data( $post_id ) {
 	$logs = get_post_meta( $post_id, '_error_log' );
 	foreach ( $logs as $log ) {
 		$continue = false;
-		$data     = $log[3];
+		$data     = is_array( $log ) ? $log[3] : false;
 		if ( is_array( $data ) ) {
 			// If record has a card number set, remove it.
 			if ( isset( $data['card-number'] ) && ! empty( $data['card-number'] ) ) {
