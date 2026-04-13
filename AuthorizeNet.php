@@ -510,26 +510,26 @@ add_action( 'init', 'my_tickets_authnet_process_payment' );
 function my_tickets_authnet_process_payment() {
 	if ( isset( $_POST['_mt_action']) && 'authnet' == $_POST['_mt_action'] && wp_verify_nonce( $_POST['_wp_authnet_nonce'], 'my-tickets-authnet' ) ) {
 		// Call this only when needed.
-		require_once( dirname( __FILE__ ) . '/includes/anet_php_sdk/AuthorizeNet.php' );
+		require __DIR__ . '/vendor/autoload.php';
+		use net\authorize\api\contract\v1 as AnetAPI;
+		use net\authorize\api\controller as AnetController;
 
 		$options         = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
 		$authnet_options = $options['mt_gateways']['authorizenet'];
 		$purchase_page   = get_permalink( $options['mt_purchase_page'] );
-		$transaction     = new AuthorizeNetAIM( $authnet_options['api'], $authnet_options['key'] );
-		// check if we are using test mode.
-		if ( isset( $options['mt_use_sandbox'] ) && 'true' == $options['mt_use_sandbox'] ) {
-			$transaction->setSandbox( true );
-		} else {
-			$transaction->setSandbox( false );
-		}
 
-		$payment_id  = absint( $_POST['payment_id'] );
-		$payer_email = get_post_meta( $payment_id, '_email', true );
-		$paid        = get_post_meta( $payment_id, '_total_paid', true );
-		$payer_name  = get_the_title( $payment_id );
-		$names       = explode( ' ', $payer_name );
-		$passed      = sanitize_text_field( $_POST['amount'] );
-		$address     = array();
+		// create authentication connection.
+		$authentication  = new AnetAPI\MerchantAuthenticationType();
+		$authentication->setName( $authnet_options['api'] );
+		$authentication->setTransactionKey( $authnet_options['key'] );
+
+		$payment_id   = absint( $_POST['payment_id'] );
+		$payer_email  = get_post_meta( $payment_id, '_email', true );
+		$paid         = get_post_meta( $payment_id, '_total_paid', true );
+		$payer_name   = get_the_title( $payment_id );
+		$names        = explode( ' ', $payer_name );
+		$passed       = sanitize_text_field( $_POST['amount'] );
+		$ship_address = array();
 		// compare amounts from payment and from passage.
 		if ( $paid != $passed ) {
 			$redirect = mt_replace_http( esc_url_raw( add_query_arg( array(
@@ -542,81 +542,118 @@ function my_tickets_authnet_process_payment() {
 			// probably fraudulent: user attempted to change the amount paid. Raise fraud flag?
 		}
 		// Set transaction values.
-		$transaction->amount      = $paid;
-		$transaction->card_num    = sanitize_text_field( trim( $_POST['card-number'] ) );
-		$transaction->card_code   = sanitize_text_field( trim( $_POST['card-cvc'] ) );
-		$transaction->exp_date    = sanitize_text_field( trim( $_POST['expiry-month'] ) ) . '/' . sanitize_text_field( trim( $_POST['expiry-year'] ) );
+		$card_num    = sanitize_text_field( trim( $_POST['card-number'] ) );
+		$card_code   = sanitize_text_field( trim( $_POST['card-cvc'] ) );
+		$exp_date    = sanitize_text_field( trim( $_POST['expiry-month'] ) ) . '/' . sanitize_text_field( trim( $_POST['expiry-year'] ) );
+		// create payment data for card.
+		$card = new AnetAPI\CreditCardType();
+		$card->setCardNumber( $card_num );
+		$card->setExpirationDate( $exp_date );
+		$card->setCardCode( $card_code );
+		// Add the payment data to a paymentType object
+		$payment = new AnetAPI\PaymentType();
+		$payment->setCreditCard( $card );
+
+		// Create order information
+		$order = new AnetAPI\OrderType();
+		$order->setInvoiceNumber( $payment_id );
 		// Translators: Blog name.
-		$transaction->description = sprintf( __( '%s - Ticket Order', 'my-tickets' ), get_option( 'blogname' ) );
-		$name                     = sanitize_text_field( $_POST['mt-card-name'] );
-		$names                    = explode( ' ', $name );
-		$f_name                   = array_shift( $names );
-		$l_name                   = implode( ' ', $names );
-		$transaction->first_name  = $f_name;
-		$transaction->last_name   = $l_name;
-		$address1                 = isset( $_POST['card_address'] ) ? sanitize_text_field( $_POST['card_address'] ) : '';
-		$address2                 = isset( $_POST['card_address_2'] ) ? sanitize_text_field( $_POST['card_address_2'] ) : '';
+		$description = sprintf( __( '%s - Ticket Order', 'my-tickets' ), get_option( 'blogname' ) );
+		$order->setDescription($description );
 
-		$transaction->address     = $address1 . ' ' . $address2;
-		$transaction->city        = isset( $_POST['card_city'] ) ? sanitize_text_field( $_POST['card_city'] ) : '';
-		$transaction->country     = isset( $_POST['card_country'] ) ? sanitize_text_field( $_POST['card_country'] ) : '';
-		$transaction->state       = isset( $_POST['card_state'] ) ? sanitize_text_field( $_POST['card_state'] ) : '';
-		$transaction->zip         = isset( $_POST['card_zip'] ) ? sanitize_text_field( $_POST['card_zip'] ) : '';
-		$transaction->customer_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
-		$transaction->email       = $payer_email;
-		$transaction->invoice_num = $payment_id;
-		// attempt to charge the customer's card.
-		try {
-			// Charge the card using Authorize.net.
-			$response       = $transaction->authorizeAndCapture();
-			$receipt_id     = get_post_meta( $payment_id, '_receipt', true );
-			$transaction_id = $response->transaction_id;
-			// Get shipping adress information and map to MT format.
-			if ( isset( $_POST['mt_shipping_street'] ) ) {
-				$address = array(
-					'street'  => isset( $_POST['mt_shipping_street'] ) ? strip_tags( $_POST['mt_shipping_street'] ) : '',
-					'street2' => isset( $_POST['mt_shipping_street2'] ) ? strip_tags( $_POST['mt_shipping_street2'] ) : '',
-					'city'    => isset( $_POST['mt_shipping_city'] ) ? strip_tags( $_POST['mt_shipping_city'] ) : '',
-					'state'   => isset( $_POST['mt_shipping_state'] ) ? strip_tags( $_POST['mt_shipping_state'] ) : '',
-					'country' => isset( $_POST['mt_shipping_code'] ) ? strip_tags( $_POST['mt_shipping_code'] ) : '',
-					'code'    => isset( $_POST['mt_shipping_country'] ) ? strip_tags( $_POST['mt_shipping_country'] ) : '',
-				);
-			}
-			if ( $response->approved ) {
-				$payment_status = 'Completed';
-				$redirect       = mt_replace_http( esc_url_raw( add_query_arg( array(
-					'response_code'  => 'thanks',
-					'gateway'        => 'authnet',
-					'transaction_id' => $transaction_id,
-					'receipt_id'     => $receipt_id,
-					'payment_id'     => $payment_id,
-				), $purchase_page ) ) );
-				$status = 'VERIFIED';
+		// Set the customer's Bill To address
+		$address = new AnetAPI\CustomerAddressType();
+		// collect data from submission.
+		$name     = sanitize_text_field( $_POST['mt-card-name'] );
+		$names    = explode( ' ', $name );
+		$f_name   = array_shift( $names );
+		$l_name   = implode( ' ', $names );
+		$address1 = isset( $_POST['card_address'] ) ? sanitize_text_field( $_POST['card_address'] ) : '';
+		$address2 = isset( $_POST['card_address_2'] ) ? sanitize_text_field( $_POST['card_address_2'] ) : '';
+		$city     = isset( $_POST['card_city'] ) ? sanitize_text_field( $_POST['card_city'] ) : '';
+		$country  = isset( $_POST['card_country'] ) ? sanitize_text_field( $_POST['card_country'] ) : '';
+		$state    = isset( $_POST['card_state'] ) ? sanitize_text_field( $_POST['card_state'] ) : '';
+		$zip      = isset( $_POST['card_zip'] ) ? sanitize_text_field( $_POST['card_zip'] ) : '';
+
+		// Set customer's identifying information
+		$customerData = new AnetAPI\CustomerDataType();
+		$customerData->setType( "individual" );
+		$customerData->setEmail( $payer_email );
+
+		$address->setFirstName( $f_name );
+		$address->setLastName( $l_name );
+		$address->setAddress( $address1 . ' ' . $address2 );
+		$address->setCity( $city );
+		$address->setState( $state );
+		$address->setZip( $zip );
+		$address->setCountry( $country );
+
+		// Create request type object.
+		$request_type = new AnetAPI\TransactionRequestType();
+		$request_type->setTransactionType("authCaptureTransaction");
+		$request_type->setAmount( $paid );
+		$request_type->setCustomer( $customer );
+		$request_type->setPayment( $payment );
+		$request_type->setOrder( $order );
+		$request_type->setBillTo( $address );
+
+		$ref_id = 'ref' . time();
+		// Assemble the complete transaction request
+		$transaction = new AnetAPI\CreateTransactionRequest();
+		$transaction->setMerchantAuthentication( $authentication );
+		$transation->setRefId( $ref_id );
+		$transaction->setTransactionRequest( $request );
+
+		// Create the controller and get the response.
+		$controller = new AnetController\CreateTransactionController( $request_type );
+		// Switch between sandbox and production.
+		if ( isset( $options['mt_use_sandbox'] ) && 'true' == $options['mt_use_sandbox'] ) {
+			$response = $controller->executeWithApiResponse( \net\authorize\api\constants\ANetEnvironment::SANDBOX );
+		} else {
+			$response = $controller->executeWithApiResponse( \net\authorize\api\constants\ANetEnvironment::PRODUCTION );
+		}
+
+		if ( null !== $response ) {
+			if ( 'Ok' === $response->getMessages()->getResultCode() ) {
+				$transaction_response = $response->getTransactionResponse();
+				if ( null !== $transaction_response->getMessages() ) {
+					// Transaction was successful.
+					$payment_status = 'Completed';
+					$receipt_id     = get_post_meta( $payment_id, '_receipt', true );
+					$redirect       = mt_replace_http( esc_url_raw( add_query_arg( array(
+						'response_code'  => 'thanks',
+						'gateway'        => 'authnet',
+						'transaction_id' => $transaction_response->getTransId(),
+						'receipt_id'     => $receipt_id,
+						'payment_id'     => $payment_id,
+					), $purchase_page ) ) );
+					$status = 'VERIFIED';
+					if ( isset( $_POST['mt_shipping_street'] ) ) {
+						$ship_address = array(
+							'street'  => isset( $_POST['mt_shipping_street'] ) ? strip_tags( $_POST['mt_shipping_street'] ) : '',
+							'street2' => isset( $_POST['mt_shipping_street2'] ) ? strip_tags( $_POST['mt_shipping_street2'] ) : '',
+							'city'    => isset( $_POST['mt_shipping_city'] ) ? strip_tags( $_POST['mt_shipping_city'] ) : '',
+							'state'   => isset( $_POST['mt_shipping_state'] ) ? strip_tags( $_POST['mt_shipping_state'] ) : '',
+							'country' => isset( $_POST['mt_shipping_code'] ) ? strip_tags( $_POST['mt_shipping_code'] ) : '',
+							'code'    => isset( $_POST['mt_shipping_country'] ) ? strip_tags( $_POST['mt_shipping_country'] ) : '',
+						);
+					}
+				} else {
+					// Transaction failed.
+					$status         = 'Pending';
+					$message        = $transaction_response->getErrors()[0]->getErrorText();
+					$payment_status = 'Failed';
+					// redirect on failed payment.
+					$redirect = mt_replace_http( esc_url_raw( add_query_arg( array(
+						'response_code' => 'failed',
+						'gateway'       => 'authnet',
+						'payment_id'    => $payment_id,
+						'reason'        => urlencode( $message ),
+					), $purchase_page ) ) );
+				}
 			} else {
-				// Handle failure case.
-				$status         = 'Pending';
-				$message        = $response->response_reason_text;
-				$payment_status = 'Failed';
-				// redirect on failed payment.
-				$redirect = mt_replace_http( esc_url_raw( add_query_arg( array(
-					'response_code' => 'failed',
-					'gateway'       => 'authnet',
-					'payment_id'    => $payment_id,
-					'reason'        => urlencode( $message ),
-				), $purchase_page ) ) );
+				// failed; no response was returned.
 			}
-
-		} catch ( Exception $e ) {
-			// Handle exception.
-			$message        = $e->response_reason_text;
-			$payment_status = 'Failed';
-			// redirect on failed payment.
-			$redirect = mt_replace_http( esc_url_raw( add_query_arg( array(
-				'response_code' => 'failed',
-				'gateway'       => 'authnet',
-				'payment_id'    => $payment_id,
-				'reason'        => urlencode( $message ),
-			), $purchase_page ) ) );
 		}
 
 		$data  = array(
@@ -628,7 +665,7 @@ function my_tickets_authnet_process_payment() {
 			'last_name'      => $l_name, // get from charge info.
 			'status'         => $payment_status,
 			'purchase_id'    => $payment_id,
-			'shipping'       => $address,
+			'shipping'       => $ship_address,
 		);
 		// Remove cc number from log data.
 		$_REQUEST['card-number'] = '';
