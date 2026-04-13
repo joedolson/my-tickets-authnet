@@ -25,7 +25,7 @@ New or updated translations are always appreciated. The translation files are in
 
 == Changelog ==
 
-= 1.2.2 =
+= 1.3.0 =
 
 * Bug fix: Support cart-specific handling fees.
 * Bug fix: Incorrectly queried array to get address info.
