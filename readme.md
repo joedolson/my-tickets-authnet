@@ -8,7 +8,7 @@ Authorize.net Gateway for My Tickets for WordPress
 
 * Donate link: https://www.joedolson.com/donate/
 * Tags: ticketing, authorize.net, event management, events
-* Requires at least: 4.9
+* Requires at least: 6.4
 * Tested up to: 6.9
 * Requires PHP: 7.4
 * Stable tag: `1.3.0`
