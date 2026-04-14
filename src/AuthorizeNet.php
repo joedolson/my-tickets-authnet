@@ -181,7 +181,7 @@ function mta_process_cron() {
 function mta_add_cron_interval( $schedules ) {
 	$schedules['five_minutes'] = array(
 		'interval' => 300,
-		'display'  => esc_html__( 'Every Five Minutes' ),
+		'display'  => esc_html__( 'Every Five Minutes', 'my-tickets-authnet' ),
 	);
 	return $schedules;
 }
@@ -277,7 +277,7 @@ function mt_gateway_authorizenet( $form, $gateway, $args ) {
 		$payment_id = $args['payment'];
 		$amount     = $args['total'];
 		$handling   = mt_get_cart_handling( $options, $gateway );
-		$shipping   = ( 'postal' == $args['method'] ) ? $options['mt_shipping'] : 0;
+		$shipping   = ( 'postal' === $args['method'] ) ? $options['mt_shipping'] : 0;
 		$total      = ( $amount + $handling + $shipping );
 		$form       = mt_authnet_form( $payment_id, $total, $args );
 		$form      .= apply_filters( 'mt_authnet_form', '', $gateway, $args );
@@ -322,8 +322,12 @@ function mta_save_license( $response, $post ) {
 	return $response . $verify;
 }
 
-// these are existence checkers. Exist if licensed.
-if ( 'true'== get_option( 'mta_license_key_valid' ) || 'valid' == get_option( 'mta_license_key_valid' ) ) {
+if ( 'true' === get_option( 'mta_license_key_valid' ) || 'valid' === get_option( 'mta_license_key_valid' ) ) {
+	/**
+	 * Exists and returns true if plugin is licensed.
+	 *
+	 * @return true
+	 */
 	function mta_valid() {
 		return true;
 	}
@@ -383,12 +387,12 @@ function mt_authnet_currencies( $currencies ) {
 	$options     = array_merge( $defaults, $options );
 	$mt_gateways = $options['mt_gateway'];
 
-	if ( is_array( $mt_gateways ) && in_array( 'authorizenet', $mt_gateways ) ) {
+	if ( is_array( $mt_gateways ) && in_array( 'authorizenet', $mt_gateways, true ) ) {
 		$authnet = mt_authnet_supported();
 		$return  = array();
 		foreach ( $authnet as $currency ) {
 			$keys = array_keys( $currencies );
-			if ( in_array( $currency, $keys ) ) {
+			if ( in_array( $currency, $keys, true ) ) {
 				$return[ $currency ] = $currencies[ $currency ];
 			}
 		}
@@ -409,11 +413,11 @@ function mt_authnet_currencies( $currencies ) {
  * @return string.
  */
 function mt_authnet_form( $payment_id, $total, $args ) {
-	$year  = date( 'Y' );
+	$year  = date( 'Y' ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 	$years = '';
-	for( $i = 0; $i < 20; $i ++ ) {
+	for ( $i = 0; $i < 20; $i++ ) {
 		$years .= "<option value='$year'>$year</option>";
-		$year ++;
+		++$year;
 	}
 	$nonce = wp_create_nonce( 'my-tickets-authnet' );
 	$form  = "
@@ -440,7 +444,7 @@ function mt_authnet_form( $payment_id, $total, $args ) {
 				<div class="form-row">
 				<fieldset>
 					<legend>' . __( 'Expiration (MM/YY)', 'my-tickets-authnet' ) . '</legend>
-					<label for="expiry-month" class="screen-reader-text">' . __('Expiration month', 'my-tickets-authnet') . '</label>
+					<label for="expiry-month" class="screen-reader-text">' . __( 'Expiration month', 'my-tickets-authnet' ) . '</label>
 					<select autocomplete="cc-exp-month" class="card-expiry-month" id="expiry-month" name="expiry-month">
 						<option value="01">01</option>
 						<option value="02">02</option>
@@ -497,7 +501,7 @@ function mt_authnet_form( $payment_id, $total, $args ) {
 		</fieldset>
 		</div>';
 	$form .= "<input type='hidden' name='payment_id' value='" . esc_attr( $payment_id ) . "' />
-	<input type='hidden' name='amount' value='$total' />";
+	<input type='hidden' name='amount' value='" . esc_attr( $total ) . "' />";
 	$form .= mt_render_field( 'address', 'authnet' );
 	$form .= "<input type='submit' name='authnet_submit' id='mt-authnet-submit' class='button' value='" . esc_attr( apply_filters( 'mt_gateway_button_text', __( 'Pay Now', 'my-tickets-authnet' ), 'authnet' ) ) . "' />";
 	$form .= apply_filters( 'mt_authnet_form', '', 'authnet', $args );

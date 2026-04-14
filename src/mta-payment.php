@@ -1,6 +1,6 @@
 <?php
 /**
- * My Tickets: AuthNet - payment processing.
+ * My Tickets: Authorize.net payment processing.
  *
  * @category Functionality
  * @package  My Tickets: Authorize.net
@@ -8,6 +8,10 @@
  * @license  GPLv3
  * @link     https://www.joedolson.com/my-tickets-authorizenet/
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+} // Exit if accessed directly.
 
 require __DIR__ . '/vendor/autoload.php';
 use net\authorize\api\contract\v1 as AnetAPI;
@@ -38,9 +42,9 @@ function my_tickets_authnet_process_payment() {
 		// compare amounts from payment and from passage.
 		if ( (string) $paid !== (string) $passed ) {
 			$redirect = mt_replace_http(
-			esc_url_raw(
-				add_query_arg(
-					array(
+				esc_url_raw(
+					add_query_arg(
+						array(
 							'response_code' => 'failed',
 							'gateway'       => 'authnet',
 							'payment_id'    => $payment_id,
