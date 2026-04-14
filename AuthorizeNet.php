@@ -440,7 +440,7 @@ function mt_authnet_form( $payment_id, $total, $args ) {
 				<fieldset>
 					<legend>' . __( 'Expiration (MM/YY)', 'my-tickets-authnet' ) . '</legend>
 					<label for="expiry-month" class="screen-reader-text">' . __('Expiration month', 'my-tickets-authnet') . '</label>
-					<select class="card-expiry-month" id="expiry-month" name="expiry-month">
+					<select autocomplete="cc-exp-month" class="card-expiry-month" id="expiry-month" name="expiry-month">
 						<option value="01">01</option>
 						<option value="02">02</option>
 						<option value="03">03</option>
@@ -456,7 +456,7 @@ function mt_authnet_form( $payment_id, $total, $args ) {
 					</select>
 					<span> / </span>
 					<label for="expiry-year" class="screen-reader-text">' . __( 'Expiration year', 'my-tickets-authnet' ) . '</label>
-					<select class="card-expiry-year" id="expiry-year" name="expiry-year">
+					<select autocomplete="cc-exp-year" class="card-expiry-year" id="expiry-year" name="expiry-year">
 						' . $years . '
 					</select>
 				</fieldset>
@@ -470,27 +470,27 @@ function mt_authnet_form( $payment_id, $total, $args ) {
 			<div class="card fields">
 				<div class="form-row">
 					<label for="address1">' . __( 'Address (1)', 'my-tickets-authnet' ) . '</label>
-					<input type="text" id="address1" name="card_address" class="card-address" />
+					<input type="text" autocomplete="billing address-line1" id="address1" name="card_address" class="card-address" />
 				</div>
 				<div class="form-row">
 					<label for="address2">' . __( 'Address (2)', 'my-tickets-authnet' ) . '</label>
-					<input type="text" id="address2" name="card_address_2" class="card-address-2" />
+					<input type="text" autocomplete="billing address-line2" id="address2" name="card_address_2" class="card-address-2" />
 				</div>
 				<div class="form-row">
 					<label for="card_city">' . __( 'City', 'my-tickets-authnet' ) . '</label>
-					<input type="text" id="card_city" name="card_city" class="card-city" />
+					<input type="text" autocomplete="billing address-level2" id="card_city" name="card_city" class="card-city" />
 				</div>
 				<div class="form-row">
 					<label for="card_zip">' . __( 'Zip / Postal Code', 'my-tickets-authnet' ) . '</label>
-					<input type="text" id="card_zip" name="card_zip" class="card-zip" />
+					<input type="text" autocomplete="billing postal-code" id="card_zip" name="card_zip" class="card-zip" />
 				</div>
 				<div class="form-row">
 					<label for="card_country">' . __( 'Country', 'my-tickets-authnet' ) . '</label>
-					<input type="text" id="card_country" name="card_country" class="card-country" />
+					<input type="text" autocomplete="billing country" id="card_country" name="card_country" class="card-country" />
 				</div>
 				<div class="form-row">
 					<label for="card_state">' . __( 'State', 'my-tickets-authnet' ) . '</label>
-					<input type="text" id="card_state" name="card_state" class="card-state" />
+					<input type="text" autocomplete="billing address-level1" id="card_state" name="card_state" class="card-state" />
 				</div>
 			</div>
 		</fieldset>
