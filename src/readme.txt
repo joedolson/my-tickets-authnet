@@ -27,10 +27,17 @@ New or updated translations are always appreciated. The translation files are in
 
 = 1.3.0 =
 
+* Bug fix: Update to more current version of Authorize.net PHP SDK.
+* Bug fix: Resolve some issues with PHP compatibility, up to PHP 8.4.
+* Bug fix: Lint for PHPCS standards.
+* Bug fix: Remove some unused variables.
 * Bug fix: Support cart-specific handling fees.
 * Bug fix: Incorrectly queried array to get address info.
+* Change: Add some base styles for payment form.
+* Change: Use system fonts for payment form.
 * Change: Use item_id instead of item_name for license queries.
 * Change: Add payments.js to this plugin instead of getting from core.
+* Accessibility: Add autocomplete attributes to payment inputs.
 
 = 1.2.1 =
 
