@@ -167,7 +167,7 @@ function my_tickets_authnet_process_payment() {
 			}
 		}
 
-		$data  = array(
+		$data = array(
 			'transaction_id' => $transaction_id,
 			'price'          => $paid,
 			'currency'       => $options['mt_currency'],

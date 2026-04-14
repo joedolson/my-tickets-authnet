@@ -1,5 +1,40 @@
 {
+    "name": "joedolson/my-tickets-authnet",
+    "description": "My Tickets: Authorize.net WordPress Plugin",
+    "keywords": ["wordpress", "plugin", "tickets", "events", "authorize.net"],
+    "homepage": "https://joedolson.com",
+    "license": "GPL-3.0-or-later",
+    "authors": [{
+        "name": "Joe Dolson",
+        "email": "plugins@joedolson.com",
+        "homepage": "https://joedolson.com"
+    }],
+    "type": "wordpress-plugin",
+    "require-dev": {
+        "phpcompatibility/php-compatibility": "^9.3",
+        "phpunit/phpunit": "^8.5",
+        "wp-coding-standards/wpcs": "^3.0.0",
+        "wp-phpunit/wp-phpunit": "^5.8",
+        "yoast/phpunit-polyfills": "^1.0",
+		"yoast/wp-test-utils": "^1.2",
+        "szepeviktor/phpstan-wordpress": "^1.1",
+        "phpstan/extension-installer": "^1.1"
+    },
     "require": {
-        "authorizenet/authorizenet": "2.0.3"
+        "composer/installers": "~1.0"
+    },
+    "scripts": {
+        "format": "phpcbf --standard=phpcs.xml.dist --report-summary --report-source",
+        "lint": "phpcs --standard=phpcs.xml.dist --ignore=*/tests/*,*/vendor/*,*/updates/*",
+        "test": [
+            "@php ./vendor/phpunit/phpunit/phpunit"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "phpstan/extension-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }
