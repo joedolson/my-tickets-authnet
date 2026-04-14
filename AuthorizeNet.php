@@ -407,9 +407,8 @@ function mt_authnet_currencies( $currencies ) {
  * @return string.
  */
 function mt_authnet_form( $payment_id, $total, $args ) {
-	$options = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
-	$year    = date( 'Y' );
-	$years   = '';
+	$year  = date( 'Y' );
+	$years = '';
 	for( $i = 0; $i < 20; $i ++ ) {
 		$years .= "<option value='$year'>$year</option>";
 		$year ++;
