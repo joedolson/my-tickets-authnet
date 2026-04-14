@@ -1,6 +1,6 @@
 # My Tickets: Authorize.net
 
-Authroize.net Gateway for My Tickets for WordPress
+Authorize.net Gateway for My Tickets for WordPress
 
 ![PHP tests](https://github.com/joedolson/my-tickets-authnet/workflows/Code%20Linting/badge.svg) [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)](https://www.gnu.org/license/gpl-2.0.html)
 
