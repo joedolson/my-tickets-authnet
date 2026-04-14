@@ -357,7 +357,6 @@ function mta_requires_ssl() {
 	}
 }
 
-
 /**
  * Get currencies supported by gateway.
  */
@@ -394,8 +393,6 @@ function mt_authnet_currencies( $currencies ) {
 
 	return $currencies;
 }
-
-
 
 /**
  * Set up form for making a Authorize.net payment via AIM.
