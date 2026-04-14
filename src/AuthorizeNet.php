@@ -57,7 +57,7 @@ define( 'EDD_MTA_STORE_URL', 'https://www.joedolson.com' );
 
 if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 	// load our custom updater if it doesn't already exist.
-	include( dirname( __FILE__ ) . '/updates/EDD_SL_Plugin_Updater.php' );
+	include __DIR__ . '/updates/EDD_SL_Plugin_Updater.php';
 }
 
 // retrieve our license key from the DB.
@@ -65,13 +65,17 @@ $license_key = trim( get_option( 'mta_license_key' ) );
 // setup the updater.
 
 if ( class_exists( 'EDD_SL_Plugin_Updater' ) ) { // prevent fatal error if doesn't exist for some reason.
-	$edd_updater = new EDD_SL_Plugin_Updater( EDD_MTA_STORE_URL, __FILE__, array(
-		'version' => $amt_version,        // current version number
-		'license' => $license_key,        // license key (use above to retrieve from DB).
-		'item_id' => 5733,   // name of this plugin.
-		'author'  => 'Joe Dolson',        // author of this plugin.
-		'url'     => home_url(),
-	) );
+	$edd_updater = new EDD_SL_Plugin_Updater(
+		EDD_MTA_STORE_URL,
+		__FILE__,
+		array(
+			'version' => $amt_version, // current version number.
+			'license' => $license_key, // license key (use above to retrieve from DB).
+			'item_id' => 5733, // ID of this plugin.
+			'author'  => 'Joe Dolson', // author of this plugin.
+			'url'     => home_url(),
+		)
+	);
 }
 
 add_filter( 'mt_setup_gateways', 'mt_setup_authnet', 10, 1 );
@@ -87,8 +91,8 @@ function mt_setup_authnet( $gateways ) {
 	$gateways['authorizenet'] = array(
 		'label'  => __( 'Authorize.net', 'my-tickets-authnet' ),
 		'fields' => array(
-			'api'  => __( 'API Login ID', 'my-tickets-authnet' ),
-			'key'  => __( 'Transaction Key', 'my-tickets-authnet' ),
+			'api' => __( 'API Login ID', 'my-tickets-authnet' ),
+			'key' => __( 'Transaction Key', 'my-tickets-authnet' ),
 		),
 	);
 
@@ -105,7 +109,7 @@ add_filter( 'mt_shipping_fields', 'mt_authnet_shipping_fields', 10, 2 );
  * @return string
  */
 function mt_authnet_shipping_fields( $form, $gateway ) {
-	if ( $gateway == 'authorizenet' ) {
+	if ( 'authorizenet' === $gateway ) {
 		$search  = array(
 			'mt_shipping_street',
 			'mt_shipping_street2',
@@ -175,10 +179,11 @@ function mta_process_cron() {
  * @return array
  */
 function mta_add_cron_interval( $schedules ) {
-    $schedules['five_minutes'] = array(
-        'interval' => 300,
-        'display'  => esc_html__( 'Every Five Minutes' ), );
-    return $schedules;
+	$schedules['five_minutes'] = array(
+		'interval' => 300,
+		'display'  => esc_html__( 'Every Five Minutes' ),
+	);
+	return $schedules;
 }
 add_filter( 'cron_schedules', 'mta_add_cron_interval' );
 
@@ -203,8 +208,8 @@ function mta_remove_card_data( $post_id ) {
 				$continue         = true;
 			}
 			if ( $continue ) {
-				$prev_log            = $log;
-				$log[3]              = $data;
+				$prev_log = $log;
+				$log[3]   = $data;
 				update_post_meta( $post_id, '_error_log', $log, $prev_log );
 			}
 		}
@@ -222,7 +227,7 @@ add_filter( 'mt_format_transaction', 'mt_authnet_transaction', 10, 2 );
  * @return array
  */
 function mt_authnet_transaction( $transaction, $gateway ) {
-	if ( $gateway == 'authorizenet' ) {
+	if ( 'authorizenet' === $gateway ) {
 		// alter return value if desired.
 	}
 
@@ -239,9 +244,9 @@ add_filter( 'mt_response_messages', 'mt_authnet_messages', 10, 2 );
  * @return string message.
  */
 function mt_authnet_messages( $message, $code ) {
-	if ( isset( $_GET['gateway'] ) && 'authorizenet' == $_GET['gateway'] ) {
+	if ( isset( $_GET['gateway'] ) && 'authorizenet' === $_GET['gateway'] ) {
 		$options = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
-		if ( 1 == $code || 'thanks' == $code ) {
+		if ( 1 === (int) $code || 'thanks' === $code ) {
 			$receipt_id     = strip_tags( $_GET['receipt_id'] );
 			$transaction_id = strip_tags( $_GET['transaction_id'] );
 			$receipt        = esc_url( add_query_arg( array( 'receipt_id' => $receipt_id ), get_permalink( $options['mt_receipt_page'] ) ) );
@@ -262,12 +267,12 @@ add_filter( 'mt_gateway', 'mt_gateway_authorizenet', 10, 3 );
  *
  * @param string $form Purchase form.
  * @param string $gateway name of gateway.
- * @param array $args data for current cart.
+ * @param array  $args data for current cart.
  *
  * @return updated form.
  */
 function mt_gateway_authorizenet( $form, $gateway, $args ) {
-	if ( 'authorizenet' == $gateway ) {
+	if ( 'authorizenet' === $gateway ) {
 		$options    = array_merge( mt_default_settings(), get_option( 'mt_settings' ) );
 		$payment_id = $args['payment'];
 		$amount     = $args['total'];
@@ -291,8 +296,8 @@ add_action( 'mt_license_fields', 'mta_license_field' );
  */
 function mta_license_field( $fields ) {
 	$field  = 'mta_license_key';
-	$active = ( 'valid' == get_option( 'mta_license_key_valid' ) ) ? ' <span class="license-activated">(active)</span>' : '';
-	$name   =  __( 'My Tickets: Authorize.net', 'my-tickets-authnet' );
+	$active = ( 'valid' === get_option( 'mta_license_key_valid' ) ) ? ' <span class="license-activated">(active)</span>' : '';
+	$name   = __( 'My Tickets: Authorize.net', 'my-tickets-authnet' );
 	return $fields . "
 	<p class='license'>
 		<label for='$field'>$name$active</label><br/>
@@ -494,7 +499,7 @@ function mt_authnet_form( $payment_id, $total, $args ) {
 	$form .= "<input type='hidden' name='payment_id' value='" . esc_attr( $payment_id ) . "' />
 	<input type='hidden' name='amount' value='$total' />";
 	$form .= mt_render_field( 'address', 'authnet' );
-	$form .= "<input type='submit' name='authnet_submit' id='mt-authnet-submit' class='button' value='" . esc_attr( apply_filters( 'mt_gateway_button_text', __( 'Pay Now', 'my-tickets' ), 'authnet' ) ) . "' />";
+	$form .= "<input type='submit' name='authnet_submit' id='mt-authnet-submit' class='button' value='" . esc_attr( apply_filters( 'mt_gateway_button_text', __( 'Pay Now', 'my-tickets-authnet' ), 'authnet' ) ) . "' />";
 	$form .= apply_filters( 'mt_authnet_form', '', 'authnet', $args );
 	$form .= '</form>';
 
