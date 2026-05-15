@@ -301,7 +301,7 @@ function mta_license_field( $fields ) {
 	return $fields . "
 	<p class='license'>
 		<label for='$field'>$name$active</label><br/>
-		<input type='text' name='$field' id='$field' size='60' value='" . esc_attr( trim( get_option( $field ) ) ) . "' />
+		<input type='text' name='$field' id='$field' class='widefat mt-license'value='" . esc_attr( trim( get_option( $field ) ) ) . "' />
 	</p>";
 }
 
