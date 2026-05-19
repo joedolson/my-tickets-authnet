@@ -269,7 +269,7 @@ add_filter( 'mt_gateway', 'mt_gateway_authorizenet', 10, 3 );
  * @param string $gateway name of gateway.
  * @param array  $args data for current cart.
  *
- * @return updated form.
+ * @return string updated form.
  */
 function mt_gateway_authorizenet( $form, $gateway, $args ) {
 	if ( 'authorizenet' === $gateway ) {
@@ -410,7 +410,7 @@ function mt_authnet_currencies( $currencies ) {
  * @param float   $total Total amount of payment.
  * @param array   $args Payment arguments.
  *
- * @return string.
+ * @return string
  */
 function mt_authnet_form( $payment_id, $total, $args ) {
 	$year  = date( 'Y' ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
