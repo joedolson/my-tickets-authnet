@@ -17,7 +17,7 @@
  * License:     GPLv3
  * License URI: http://www.gnu.org/license/gpl-2.0.txt
  * Domain Path: lang
- * Version:     1.3.0
+ * Version:     1.3.1
  * Requires Plugins: my-tickets
  */
 
