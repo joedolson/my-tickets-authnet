@@ -316,7 +316,7 @@ add_action( 'mt_save_license', 'mta_save_license', 10, 2 );
  */
 function mta_save_license( $response, $post ) {
 	$field  = 'mta_license_key';
-	$verify = mt_verify_key( $field, 5733, EDD_MTA_STORE_URL );
+	$verify = mt_verify_key( $field, 5733, EDD_MTA_STORE_URL, 'My Tickets: Authorize.net' );
 	$verify = "<li>$verify</li>";
 
 	return $response . $verify;
