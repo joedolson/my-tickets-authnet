@@ -5,7 +5,7 @@
  * @package     My Tickets: Authorize.net
  * @author      Joe Dolson
  * @copyright   2014-2026 Joe Dolson
- * @license     GPLv3
+ * @license     GPLv2
  *
  * @wordpress-plugin
  * Plugin Name: My Tickets: Authorize.net
@@ -14,7 +14,7 @@
  * Author: Joseph C Dolson
  * Author URI: https://www.joedolson.com
  * Text Domain: my-tickets-authnet
- * License:     GPLv3
+ * License:     GPLv2
  * License URI: http://www.gnu.org/license/gpl-2.0.txt
  * Domain Path: lang
  * Version:     1.3.1

@@ -5,7 +5,7 @@
  * @category Functionality
  * @package  My Tickets: Authorize.net
  * @author   Joe Dolson
- * @license  GPLv3
+ * @license  GPLv2
  * @link     https://www.joedolson.com/my-tickets-authorizenet/
  */
 

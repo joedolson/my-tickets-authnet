@@ -12,7 +12,7 @@ Authorize.net Gateway for My Tickets for WordPress
 * Tested up to: 7.0
 * Requires PHP: 7.4
 * Stable tag: `1.3.1`
-* License: GPLv3
+* License: GPLv2
 * License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 This is the development environment for My Tickets: Authorize.net.
